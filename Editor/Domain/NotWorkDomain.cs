@@ -28,7 +28,7 @@ namespace net.rs64.TexTransTool
         public void ReplaceMaterials(Dictionary<Material, Material> mapping) { }
         public void SetMesh(Renderer renderer, Mesh mesh) { }
         public void SetMaterials(Renderer renderer, Material[] materials) { }
-        public void TransferAsset(UnityEngine.Object asset) { _transferredObject.Add(asset); }
+        public void SaveAsset(UnityEngine.Object asset) { _transferredObject.Add(asset); }
         public void Dispose()
         {
             foreach (var obj in _transferredObject) { UnityEngine.Object.DestroyImmediate(obj); }
@@ -36,7 +36,7 @@ namespace net.rs64.TexTransTool
         }
         public ITexTransToolForUnity GetTexTransCoreEngineForUnity() => _ttce4U;
         public TexTransToolTextureDescriptor GetTextureDescriptor(Texture texture) { return new(); }
-        public void RegisterPostProcessingAndLazyGPUReadBack(ITTRenderTexture rt, TexTransToolTextureDescriptor textureDescriptor) { _transferredRT.Add(rt); }
+        public void RegisterTextureDescription(ITTRenderTexture rt, TexTransToolTextureDescriptor textureDescriptor) { _transferredRT.Add(rt); }
         T? IDomainCustomContext.GetCustomContext<T>() where T : class { return null; }
     }
 

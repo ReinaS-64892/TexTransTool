@@ -16,8 +16,8 @@ namespace net.rs64.TexTransTool.TextureAtlas.IslandSizePriorityTuner
         [Range(0, 1)] public float PriorityValue = 1f;
         public List<Material> Materials;
 
-        void LookAtCalling(ILookingObject lookingObject) { }
-        void Tuning(float[] sizePriority, Island[] islands, IslandDescription[] islandDescriptions, IRendererTargeting targeting)
+        void LookAtCalling(IUnityObjectObserver lookingObject) { }
+        void Tuning(float[] sizePriority, Island[] islands, IslandDescription[] islandDescriptions, IDomainReferenceViewer targeting)
         {
             if (Materials == null) { return; }
             UnityObjectEqualityComparison originEqual = targeting.OriginalObjectEquals;
@@ -36,12 +36,12 @@ namespace net.rs64.TexTransTool.TextureAtlas.IslandSizePriorityTuner
 
         }
 
-        void IIslandSizePriorityTuner.Tuning(float[] sizePriority, Island[] islands, IslandDescription[] islandDescriptions, IRendererTargeting targeting)
+        void IIslandSizePriorityTuner.Tuning(float[] sizePriority, Island[] islands, IslandDescription[] islandDescriptions, IDomainReferenceViewer targeting)
         {
             Tuning(sizePriority, islands, islandDescriptions, targeting);
         }
 
-        void IIslandSizePriorityTuner.LookAtCalling(ILookingObject looker)
+        void IIslandSizePriorityTuner.LookAtCalling(IUnityObjectObserver looker)
         {
             LookAtCalling(looker);
         }

@@ -70,7 +70,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             public bool OverCrossIslandMerge = true;
         }
         public AtlasContext(
-            IRendererTargeting targeting
+            IDomainReferenceViewer targeting
             , Renderer[] targetRenderers
             , HashSet<Material> targetMaterials
             , AtlasContextOption atlasContextOption

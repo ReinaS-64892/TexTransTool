@@ -81,9 +81,9 @@ namespace net.rs64.TexTransTool.Decal
     internal class SingleGradationDecalIslandSelectFilter : ITrianglesFilter<SingleGradationSpace, SingleGradationFilteredTrianglesHolder>
     {
         IIslandSelector? _islandSelector;
-        IRendererTargeting _targeting;
+        IDomainReferenceViewer _targeting;
 
-        public SingleGradationDecalIslandSelectFilter(IIslandSelector? islandSelector, IRendererTargeting targeting)
+        public SingleGradationDecalIslandSelectFilter(IIslandSelector? islandSelector, IDomainReferenceViewer targeting)
         {
             _islandSelector = islandSelector;
             _targeting = targeting;

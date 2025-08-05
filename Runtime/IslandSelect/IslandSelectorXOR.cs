@@ -14,7 +14,7 @@ namespace net.rs64.TexTransTool.IslandSelector
         internal const string MenuPath = FoldoutName + "/" + ComponentName;
         public int StabilizeSaveDataVersion => TTTDataVersion_0_10_X;
 
-        internal override void LookAtCalling(ILookingObject looker) { LookAtChildren(this, looker); }
+        internal override void LookAtCalling(IUnityObjectObserver looker) { LookAtChildren(this, looker); }
         internal override BitArray IslandSelectImpl(IslandSelectorContext ctx)
         {
             BitArray? bitArray = null;

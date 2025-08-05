@@ -62,7 +62,7 @@ namespace net.rs64.TexTransTool
 
         public void SetMaterials(Renderer renderer, Material[] materials) { renderer.sharedMaterials = materials; }
         public bool IsTemporaryAsset(Object Asset) => _saver?.IsTemporaryAsset(Asset) ?? false;
-        public void TransferAsset(Object Asset) => _saver?.TransferAsset(Asset);
+        public void SaveAsset(Object Asset) => _saver?.SaveAsset(Asset);
 
         public virtual bool OriginalObjectEquals(Object? l, Object? r)
         {
@@ -94,7 +94,7 @@ namespace net.rs64.TexTransTool
                 var refTex = _ttce4U.GetReferenceRenderTexture(mergeResult.MergeTexture);
                 this.ReplaceTexture(mergeResult.FirstTexture, refTex);
                 RegisterReplacement(mergeResult.FirstTexture, refTex);
-                RegisterPostProcessingAndLazyGPUReadBack(mergeResult.MergeTexture, GetTextureDescriptor(mergeResult.FirstTexture));
+                RegisterTextureDescription(mergeResult.MergeTexture, GetTextureDescriptor(mergeResult.FirstTexture));
             }
         }
         public void ReadBackToTexture2D()
@@ -102,7 +102,7 @@ namespace net.rs64.TexTransTool
             var (replaceMap, originRt) = _renderTextureDescriptorManager.DownloadTexture2D();
             foreach (var r in replaceMap)
             {
-                TransferAsset(r.Value);
+                SaveAsset(r.Value);
                 this.ReplaceTexture(r.Key, r.Value);
 
                 var replace = _genericReplaceRegistry.ReplacePooledRenderTexture(r.Key, r.Value);
@@ -115,7 +115,7 @@ namespace net.rs64.TexTransTool
 
         public TexTransToolTextureDescriptor GetTextureDescriptor(Texture texture)
         { return _renderTextureDescriptorManager.GetTextureDescriptor(texture); }
-        public void RegisterPostProcessingAndLazyGPUReadBack(ITTRenderTexture rt, TexTransToolTextureDescriptor textureDescriptor)
+        public void RegisterTextureDescription(ITTRenderTexture rt, TexTransToolTextureDescriptor textureDescriptor)
         { _renderTextureDescriptorManager.RegisterPostProcessingAndLazyGPUReadBack(rt, textureDescriptor); }
 
         T? IDomainCustomContext.GetCustomContext<T>() where T : class

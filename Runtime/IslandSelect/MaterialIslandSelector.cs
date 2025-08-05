@@ -13,7 +13,7 @@ namespace net.rs64.TexTransTool.IslandSelector
         internal const string ComponentName = "TTT " + nameof(MaterialIslandSelector);
         internal const string MenuPath = FoldoutName + "/" + ComponentName;
         public List<Material> Materials = new();
-        internal override void LookAtCalling(ILookingObject looker) { looker.LookAt(this); }
+        internal override void LookAtCalling(IUnityObjectObserver looker) { looker.Observe(this); }
         internal override BitArray IslandSelectImpl(IslandSelectorContext ctx)
         {
             UnityObjectEqualityComparison oe = ctx.Targeting.OriginalObjectEquals;

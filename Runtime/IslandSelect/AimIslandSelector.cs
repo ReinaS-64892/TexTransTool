@@ -16,10 +16,10 @@ namespace net.rs64.TexTransTool.IslandSelector
         internal const string ComponentName = "TTT " + nameof(AimIslandSelector);
         internal const string MenuPath = FoldoutName + "/" + ComponentName;
 
-        internal override void LookAtCalling(ILookingObject looker)
+        internal override void LookAtCalling(IUnityObjectObserver looker)
         {
-            looker.LookAt(transform.GetParents().Append(transform));
-            looker.LookAt(this);
+            looker.Observe(transform.GetParents().Append(transform));
+            looker.Observe(this);
         }
         internal override BitArray IslandSelectImpl(IslandSelectorContext ctx) { return RayBaseIslandSelect.RayCastIslandSelect(GetIslandSelectorRay(), ctx.Islands, ctx.IslandDescription); }
         internal RayIntersect.Ray GetIslandSelectorRay() { return new Ray(transform.position, transform.forward).ToTTCore(); }

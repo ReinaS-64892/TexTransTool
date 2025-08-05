@@ -17,7 +17,7 @@ using net.rs64.TexTransCore.MultiLayerImageCanvas;
 namespace net.rs64.TexTransTool.Decal
 {
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
-    public sealed class SimpleDecal : TexTransRuntimeBehavior, ICanBehaveAsLayer , ITexTransToolStableComponent
+    public sealed class SimpleDecal : TexTransBehavior, ICanBehaveAsLayer, ITexTransToolStableComponent
     {
         internal const string ComponentName = "TTT SimpleDecal";
         internal const string MenuPath = ComponentName;
@@ -48,15 +48,15 @@ namespace net.rs64.TexTransTool.Decal
 
         internal override void Apply(IDomain domain)
         {
-            domain.LookAt(this);
+            domain.Observe(this);
             if (RendererSelector.IsTargetNotSet()) { TTLog.Info("SimpleDecal:info:TargetNotSet"); return; }
             var decalCompiledTextures = CompileDecal(domain);
 
-            domain.LookAt(transform.GetParents().Append(transform));
-            domain.LookAt(decalCompiledTextures.Keys);
+            domain.Observe(transform.GetParents().Append(transform));
+            domain.Observe(decalCompiledTextures.Keys);
             if (IslandSelector != null) { IslandSelector.LookAtCalling(domain); }
-            domain.LookAtGetComponent<SimpleDecalExperimentalFeature>(gameObject);
-            if (GetExperimentalFeature != null) domain.LookAt(GetExperimentalFeature);
+            domain.ObserveToGetComponent<SimpleDecalExperimentalFeature>(gameObject);
+            if (GetExperimentalFeature != null) domain.Observe(GetExperimentalFeature);
 
 
             var blKey = domain.GetTexTransCoreEngineForUnity().QueryBlendKey(BlendTypeKey);
@@ -78,11 +78,11 @@ namespace net.rs64.TexTransTool.Decal
             using var mulDecalTexture = GetDecalSourceTexture(domain, ttce);
             Profiler.EndSample();
 
-            var targetRenderers = ModificationTargetRenderers(domain);
+            var targetRenderers = DecalContextUtility.FilterDecalTarget(domain, TargetRenderers(domain), TargetPropertyName);
             var decalContext = GenerateDecalCtx(domain, ttce);
             decalContext.DrawMaskMaterials = RendererSelector.GetOrNullAutoMaterialHashSet(domain);
 
-            domain.LookAt(targetRenderers);
+            domain.Observe(targetRenderers);
             return decalContext.WriteDecalTexture<Texture>(domain, targetRenderers, mulDecalTexture, TargetPropertyName) ?? new();
 
         }
@@ -120,17 +120,17 @@ namespace net.rs64.TexTransTool.Decal
                 return solid;
             }
 
-            domain.LookAt(DecalTexture);
+            domain.Observe(DecalTexture);
             var decalTexDisk = ttce.Wrapping(DecalTexture);
             var mulDecalTexture = ttce.LoadTextureWidthFullScale(decalTexDisk);
             ttce.ColorMultiply(mulDecalTexture, Color.ToTTCore());
             return mulDecalTexture;
         }
 
-        internal override IEnumerable<Renderer> ModificationTargetRenderers(IRendererTargeting rendererTargeting)
+        internal override IEnumerable<Renderer> TargetRenderers(IDomainReferenceViewer rendererTargeting)
         {
-            return DecalContextUtility.FilterDecalTarget(rendererTargeting, RendererSelector.GetSelectedOrIncludingAll(rendererTargeting, this, GetDRS, out var _), TargetPropertyName);
-            DecalRendererSelector GetDRS(SimpleDecal simpleDecal) => simpleDecal.RendererSelector;
+            var rendererSelector = rendererTargeting.ObserveToGet(this, b => new DecalRendererSelector(b.RendererSelector), DecalRendererSelector.ValueEqual);
+            return rendererSelector.GetSelected(rendererTargeting);
         }
         public List<Renderer> GetIntersectRenderers(IEnumerable<Renderer> renderers)
         {
@@ -150,7 +150,7 @@ namespace net.rs64.TexTransTool.Decal
         }
 
         internal ParallelProjectionSpaceConvertor GetSpaceConverter() { return new(transform.worldToLocalMatrix); }
-        internal ITrianglesFilter<ParallelProjectionSpace, IFilteredTriangleHolder> GetTriangleFilter(IRendererTargeting originEqual)
+        internal ITrianglesFilter<ParallelProjectionSpace, IFilteredTriangleHolder> GetTriangleFilter(IDomainReferenceViewer originEqual)
         {
             if (IslandSelector != null) { return new IslandSelectToPPFilter(IslandSelector, GetFilter(), originEqual); }
             return new ParallelProjectionFilter(GetFilter());
@@ -214,7 +214,7 @@ namespace net.rs64.TexTransTool.Decal
             var domain = ctx.Domain;
             var engine = ctx.Engine;
 
-            domain.LookAt(this);
+            domain.Observe(this);
             var alphaMask = asLayer.GetAlphaMaskObject(ctx);
             var blKey = engine.QueryBlendKey(BlendTypeKey);
             var alphaOp = asLayer.Clipping ? AlphaOperation.Inherit : AlphaOperation.Normal;
@@ -225,12 +225,12 @@ namespace net.rs64.TexTransTool.Decal
                 return new EmptyLayer<ITexTransToolForUnity>(asLayer.Visible, alphaMask, alphaOp, asLayer.Clipping, blKey);
             }
 
-            domain.LookAt(transform.GetParents().Append(transform));
+            domain.Observe(transform.GetParents().Append(transform));
             using var decalSourceTex = GetDecalSourceTexture(domain, engine);
             var decalWriteTarget = ctx.Engine.CreateRenderTexture(ctx.CanvasSize.x, ctx.CanvasSize.y);
 
             var decalRenderTarget = ctx.Domain.RendererFilterForMaterialFromDomains(ctx.TargetContainedMaterials);
-            domain.LookAt(decalRenderTarget);
+            domain.Observe(decalRenderTarget);
             var decalContext = GenerateDecalCtx(domain, engine);
             decalContext.DrawMaskMaterials = ctx.TargetContainedMaterials;
 

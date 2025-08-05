@@ -11,7 +11,7 @@ using Color = UnityEngine.Color;
 namespace net.rs64.TexTransTool
 {
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
-    public sealed class ColorDifferenceChanger : TexTransRuntimeBehavior, ICanBehaveAsLayer, ITTGrabBlending
+    public sealed class ColorDifferenceChanger : TexTransBehavior, ICanBehaveAsLayer, ITTGrabBlending
     {
         internal const string ComponentName = "TTT " + nameof(ColorDifferenceChanger);
         internal const string MenuPath = TextureBlender.FoldoutName + "/" + ComponentName;
@@ -30,13 +30,13 @@ namespace net.rs64.TexTransTool
 
         internal override void Apply(IDomain domain)
         {
-            var distTex = TargetTexture.GetTextureWithLookAt(domain, this, GetTextureSelector);
+            var distTex = domain.ObserveToGet(this, b => b.TargetTexture.SelectTexture);
             if (distTex == null) { TTLog.Info("ColorDifferenceChanger:info:TargetNotSet"); return; }
 
             var targetTextures = domain.GetDomainsTextures(distTex).ToArray();
             if (targetTextures.Any() is false) { TTLog.Info("ColorDifferenceChanger:info:TargetNotFound"); return; }
 
-            domain.LookAt(this);
+            domain.Observe(this);
             var engine = domain.GetTexTransCoreEngineForUnity();
             var gcQuay = engine.GetExKeyQuery<IQuayGeneraleComputeKey>();
 
@@ -100,18 +100,17 @@ namespace net.rs64.TexTransTool
             // }
         }
 
-        internal override IEnumerable<Renderer> ModificationTargetRenderers(IRendererTargeting rendererTargeting)
+        internal override IEnumerable<Renderer> TargetRenderers(IDomainReferenceViewer domainView)
         {
-            return TargetTexture.ModificationTargetRenderers(rendererTargeting, this, GetTextureSelector);
+            return TextureSelector.TargetRenderers(domainView.ObserveToGet(this, b => b.TargetTexture.SelectTexture), domainView);
         }
-        TextureSelector GetTextureSelector(ColorDifferenceChanger texBlend) { return texBlend.TargetTexture; }
 
         LayerObject<ITexTransToolForUnity> ICanBehaveAsLayer.GetLayerObject(GenerateLayerObjectContext ctx, AsLayer asLayer)
         {
             var domain = ctx.Domain;
             var engine = ctx.Engine;
 
-            domain.LookAt(this);
+            domain.Observe(this);
             var alphaMask = asLayer.GetAlphaMaskObject(ctx);
             var blKey = engine.QueryBlendKey(asLayer.BlendTypeKey);
             return new GrabBlendingAsLayer<ITexTransToolForUnity>(asLayer.Visible, alphaMask, asLayer.Clipping, blKey, this);

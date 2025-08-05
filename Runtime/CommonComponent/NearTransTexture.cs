@@ -17,7 +17,7 @@ using UnityEngine;
 namespace net.rs64.TexTransTool
 {
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
-    public sealed class NearTransTexture : TexTransRuntimeBehavior
+    public sealed class NearTransTexture : TexTransBehavior
     {
         internal const string ComponentName = "TTT " + nameof(NearTransTexture);
         internal const string MenuPath = TextureBlender.FoldoutName + "/" + ComponentName;
@@ -69,7 +69,7 @@ namespace net.rs64.TexTransTool
             var sourceTexture = sourceMaterial.GetTexture(SourcePropertyName);
             var targetTexture = targetMaterial.GetTexture(TargetPropertyName);
             if (sourceTexture == null || targetTexture == null) { TTLog.Error("NearTransTexture:error:TextureIsNull"); return; }
-            domain.LookAt(this);
+            domain.Observe(this);
 
             using var sourceVertArray = new NativeArray<Vector4>(sourceMeshData.Vertices.Length, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
             using var targetVertArray = new NativeArray<Vector4>(targetMeshData.Vertices.Length, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
@@ -104,7 +104,7 @@ namespace net.rs64.TexTransTool
             domain.AddTextureStack(targetTexture, targetTexRt, engine.QueryBlendKey(BlendTypeKey));
         }
 
-        internal override IEnumerable<Renderer> ModificationTargetRenderers(IRendererTargeting rendererTargeting)
+        internal override IEnumerable<Renderer> TargetRenderers(IDomainReferenceViewer rendererTargeting)
         {
             var renderers = new List<Renderer>(2);
             if (TransSourceRenderer != null) { renderers.Add(TransSourceRenderer); }

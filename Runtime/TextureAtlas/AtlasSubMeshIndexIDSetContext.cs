@@ -11,7 +11,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public HashSet<AtlasSubMeshIndexID> AtlasSubMeshIndexIDHash;
         public List<AtlasSubMeshIndexID?[]> AtlasSubSets;
         public AtlasSubMeshIndexIDSetContext(
-            IRendererTargeting targeting
+            IDomainReferenceViewer targeting
             , Renderer[] targetRenderers
             , HashSet<Material> targetMaterials
             , AtlasMeshSourceContext atlasMeshSourceContext

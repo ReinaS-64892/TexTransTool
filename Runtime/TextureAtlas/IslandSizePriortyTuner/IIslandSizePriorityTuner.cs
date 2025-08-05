@@ -7,8 +7,8 @@ namespace net.rs64.TexTransTool.TextureAtlas.IslandSizePriorityTuner
     {
         //islands と islandDescriptions は書き込みしないように、
         //sizePriority を調整してね！
-        internal void Tuning(float[] sizePriority, Island[] islands, IslandDescription[] islandDescriptions, IRendererTargeting targeting);
+        internal void Tuning(float[] sizePriority, Island[] islands, IslandDescription[] islandDescriptions, IDomainReferenceViewer targeting);
 
-        internal void LookAtCalling(ILookingObject looker);
+        internal void LookAtCalling(IUnityObjectObserver looker);
     }
 }

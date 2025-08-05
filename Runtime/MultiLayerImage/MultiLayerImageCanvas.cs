@@ -11,7 +11,7 @@ using UnityEngine.Serialization;
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
-    public sealed class MultiLayerImageCanvas : TexTransRuntimeBehavior
+    public sealed class MultiLayerImageCanvas : TexTransBehavior
     {
         internal const string FoldoutName = "MultiLayerImage";
         internal const string ComponentName = "TTT MultiLayerImageCanvas";
@@ -24,7 +24,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
         internal override void Apply(IDomain domain)
         {
-            var replaceTarget = TargetTexture.GetTextureWithLookAt(domain, this, GetTextureSelector);
+            var replaceTarget = domain.ObserveToGet(this, b => b.TargetTexture.SelectTexture);
             if (replaceTarget == null) { TTLog.Info("MultiLayerImageCanvas:info:TargetNotSet"); return; }
 
             var nowDomainsTargets = domain.GetDomainsTextures(replaceTarget).ToHashSet();
@@ -59,19 +59,19 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         }
         internal List<TexTransCore.MultiLayerImageCanvas.LayerObject<ITexTransToolForUnity>> GenerateLayerObject(GenerateLayerObjectContext ctx)
         {
-            ctx.Domain.LookAt(this);
-            ctx.Domain.LookAtChildeComponents<TexTransMonoBase>(gameObject);
+            ctx.Domain.Observe(this);
+            ctx.Domain.ObserveToChildeComponents<TexTransMonoBase>(gameObject);
             var layers = GetChileLayers();
             var list = new List<TexTransCore.MultiLayerImageCanvas.LayerObject<ITexTransToolForUnity>>(layers.Capacity);
             foreach (var l in layers) { list.Add(l.GetLayerObject(ctx)); }
             return list;
         }
 
-        internal override IEnumerable<Renderer> ModificationTargetRenderers(IRendererTargeting rendererTargeting)
+
+        internal override IEnumerable<Renderer> TargetRenderers(IDomainReferenceViewer domainView)
         {
-            return TargetTexture.ModificationTargetRenderers(rendererTargeting, this, GetTextureSelector);
+            return TextureSelector.TargetRenderers(domainView.ObserveToGet(this, b => b.TargetTexture.SelectTexture), domainView);
         }
-        TextureSelector GetTextureSelector(MultiLayerImageCanvas multiLayerImageCanvas) { return multiLayerImageCanvas.TargetTexture; }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         List<IMultiLayerImageCanvasLayer> GetChileLayers() { return GetChileLayers(transform); }

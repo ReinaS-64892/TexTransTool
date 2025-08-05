@@ -17,10 +17,10 @@ namespace net.rs64.TexTransTool.Decal
     {
         JobChain<FilterTriangleJobInput<NativeArray<Vector3>>>[] _filters;
         IIslandSelector _islandSelector;
-        IRendererTargeting _targeting;
+        IDomainReferenceViewer _targeting;
 
 
-        public IslandSelectToPPFilter(IIslandSelector islandSelector, JobChain<FilterTriangleJobInput<NativeArray<Vector3>>>[] filters, IRendererTargeting targeting)
+        public IslandSelectToPPFilter(IIslandSelector islandSelector, JobChain<FilterTriangleJobInput<NativeArray<Vector3>>>[] filters, IDomainReferenceViewer targeting)
         {
             _islandSelector = islandSelector;
 
@@ -48,7 +48,7 @@ namespace net.rs64.TexTransTool.Decal
             }
             return new IslandSelectedJobChainedFilteredTrianglesHolder(islandSelectedTriangles, filteredBitJobs);
         }
-        internal static IslandSelectedTriangleHolder IslandSelectExecute(IIslandSelector? islandSelector, MeshData[] meshData, IRendererTargeting targeting)
+        internal static IslandSelectedTriangleHolder IslandSelectExecute(IIslandSelector? islandSelector, MeshData[] meshData, IDomainReferenceViewer targeting)
         {
             if (islandSelector == null)
             {

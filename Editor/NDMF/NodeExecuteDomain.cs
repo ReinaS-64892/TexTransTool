@@ -51,13 +51,13 @@ namespace net.rs64.TexTransTool.NDMF
             _objectRegistry = objectRegistry;
         }
 
-        public void LookAt(UnityEngine.Object obj)
+        public void Observe(UnityEngine.Object obj)
         {
             if (obj is Renderer renderer && _proxy2OriginRendererDict.ContainsKey(renderer)) { return; }
             _ctx?.Observe(obj);
             UsedLookAt = true;
         }
-        public TOut LookAtGet<TObj, TOut>(TObj obj, Func<TObj, TOut> getAction, Func<TOut, TOut, bool>? comp = null)
+        public TOut ObserveToGet<TObj, TOut>(TObj obj, Func<TObj, TOut> getAction, Func<TOut, TOut, bool>? comp = null)
                 where TObj : UnityEngine.Object
         {
             // if (obj is Renderer renderer && _proxy2OriginRendererDict.ContainsKey(renderer)) { return getAction(obj); }
@@ -70,11 +70,11 @@ namespace net.rs64.TexTransTool.NDMF
             */
             return getAction(obj);
         }
-        public void LookAtGetComponent<LookTargetComponent>(GameObject gameObject) where LookTargetComponent : Component
+        public void ObserveToGetComponent<LookTargetComponent>(GameObject gameObject) where LookTargetComponent : Component
         {
             _ctx.GetComponent<LookTargetComponent>(gameObject);
         }
-        public void LookAtChildeComponents<LookTargetComponent>(GameObject gameObject) where LookTargetComponent : Component
+        public void ObserveToChildeComponents<LookTargetComponent>(GameObject gameObject) where LookTargetComponent : Component
         {
             _ctx.GetComponentsInChildren<LookTargetComponent>(gameObject, true);
         }
@@ -103,7 +103,7 @@ namespace net.rs64.TexTransTool.NDMF
             ReplaceMaterials(new() { { origin, mutableMat } });
 
             RegisterReplacement(origin, mutableMat);
-            TransferAsset(mutableMat);
+            SaveAsset(mutableMat);
 
             mutableMat.name = origin.name + "(TTT GetMutable on NDMF Preview for pooled)";
             material = mutableMat;
@@ -132,7 +132,7 @@ namespace net.rs64.TexTransTool.NDMF
         }
         public TexTransToolTextureDescriptor GetTextureDescriptor(Texture texture) { return new(); }
 
-        public void RegisterPostProcessingAndLazyGPUReadBack(ITTRenderTexture rt, TexTransToolTextureDescriptor textureDescriptor)
+        public void RegisterTextureDescription(ITTRenderTexture rt, TexTransToolTextureDescriptor textureDescriptor)
         {
             _transferredRenderTextures.Add(rt);
 
@@ -156,7 +156,7 @@ namespace net.rs64.TexTransTool.NDMF
             return _objectRegistry.GetReference(l).Equals(_objectRegistry.GetReference(r));
         }
 
-        public void TransferAsset(UnityEngine.Object asset) { _transferredObject.Add(asset); }
+        public void SaveAsset(UnityEngine.Object asset) { _transferredObject.Add(asset); }
         public bool IsActive(GameObject gameObject)
         {
             return TexTransBehaviorSearch.CheckIsActive(gameObject, _NDMFObservedWaker, null);

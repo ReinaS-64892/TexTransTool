@@ -8,7 +8,7 @@ using System.Linq;
 namespace net.rs64.TexTransTool
 {
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
-    public sealed class UVCopy : TexTransRuntimeBehavior
+    public sealed class UVCopy : TexTransBehavior
     {
         internal const string ComponentName = "TTT " + nameof(UVCopy);
         internal const string MenuPath = TextureBlender.FoldoutName + "/" + ComponentName;
@@ -22,8 +22,8 @@ namespace net.rs64.TexTransTool
 
         internal override void Apply(IDomain domain)
         {
-            domain.LookAt(this);
-            var targets = ModificationTargetRenderers(domain);
+            domain.Observe(this);
+            var targets = TargetRenderers(domain);
 
             if (targets.Any() is false) { return; }
 
@@ -39,7 +39,7 @@ namespace net.rs64.TexTransTool
             List<Vector4>? uvDim4 = null;
             foreach (var dMesh in distMeshes)
             {
-                domain.LookAt(dMesh);
+                domain.Observe(dMesh);
                 var copedMesh = replaceDict[dMesh] = UnityEngine.Object.Instantiate(dMesh);
                 copedMesh.name = dMesh.name + "(Clone from TTT UVCopy)";
 
@@ -78,7 +78,7 @@ namespace net.rs64.TexTransTool
             domain.RegisterReplaces(replaceDict);
         }
 
-        internal override IEnumerable<Renderer> ModificationTargetRenderers(IRendererTargeting rendererTargeting)
+        internal override IEnumerable<Renderer> TargetRenderers(IDomainReferenceViewer rendererTargeting)
         {
             var targetMeshes = TargetMeshes.Where(i => i != null).ToArray();
             return rendererTargeting.EnumerateRenderers()

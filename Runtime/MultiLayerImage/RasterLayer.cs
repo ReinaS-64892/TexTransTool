@@ -14,8 +14,8 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         {
             var domain = ctx.Domain;
             var engine = ctx.Engine;
-            domain.LookAt(this);
-            domain.LookAt(gameObject);
+            domain.Observe(this);
+            domain.Observe(gameObject);
 
             var alphaOperator = Clipping ? AlphaOperation.Inherit : AlphaOperation.Normal;
             var alphaMask = GetAlphaMaskObject(ctx);
@@ -23,7 +23,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
             if (RasterTexture == null) { return new EmptyLayer<ITexTransToolForUnity>(Visible, alphaMask, alphaOperator, Clipping, blKey); }
 
-            domain.LookAt(RasterTexture);
+            domain.Observe(RasterTexture);
             var diskTex = engine.Wrapping(RasterTexture);
             return new RasterLayer<ITexTransToolForUnity>(Visible, alphaMask, alphaOperator, Clipping, blKey, diskTex);
         }

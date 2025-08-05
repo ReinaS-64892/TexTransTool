@@ -8,7 +8,7 @@ using net.rs64.TexTransCore;
 namespace net.rs64.TexTransTool
 {
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
-    public sealed class MaterialModifier : TexTransRuntimeBehavior, IRendererTargetingAffecterWithRuntime
+    public sealed class MaterialModifier : TexTransBehavior, IDomainReferenceModifier
     {
         internal const string ComponentName = "TTT MaterialModifier";
         internal const string MenuPath = TextureBlender.FoldoutName + "/" + ComponentName;
@@ -25,7 +25,7 @@ namespace net.rs64.TexTransTool
 
         internal override void Apply(IDomain domain)
         {
-            domain.LookAt(this);
+            domain.Observe(this);
 
             if (TargetMaterial == null) { TTLog.Info("MaterialModifier:info:TargetNotSet"); return; }
 
@@ -128,19 +128,15 @@ namespace net.rs64.TexTransTool
             }
         }
 
-        private static IEnumerable<Material> GetTargetMaterials(IRendererTargeting rendererTargeting, Material? target)
+        private static IEnumerable<Material> GetTargetMaterials(IDomainReferenceViewer rendererTargeting, Material? target)
         { return rendererTargeting.GetDomainsMaterialsHashSet(target); }
-        internal override IEnumerable<Renderer> ModificationTargetRenderers(IRendererTargeting rendererTargeting)
-        { return rendererTargeting.RendererFilterForMaterial(rendererTargeting.LookAtGet(this, i => i.TargetMaterial)); }
+        internal override IEnumerable<Renderer> TargetRenderers(IDomainReferenceViewer rendererTargeting)
+        { return rendererTargeting.RendererFilterForMaterial(rendererTargeting.ObserveToGet(this, i => i.TargetMaterial)); }
 
-        void IRendererTargetingAffecterWithRuntime.AffectingRendererTargeting(IAffectingRendererTargeting rendererTargeting)
+        void IDomainReferenceModifier.RegisterDomainReference(IDomainReferenceViewer domainReferenceViewer, IDomainReferenceRegistry registry)
         {
-            var targetMat = rendererTargeting.LookAtGet(this, i => i.TargetMaterial);
-            if (targetMat == null) { return; }
-
-            _ = rendererTargeting.LookAtGet(this, c => c.IsOverrideShader);// looking
-            _ = rendererTargeting.LookAtGet(this, c => c.OverrideShader);
-            _ = rendererTargeting.LookAtGet(this,
+            var mats = GetTargetMaterials(domainReferenceViewer, domainReferenceViewer.ObserveToGet(this, mm => mm.TargetMaterial));
+            var addTextures = domainReferenceViewer.ObserveToGet(this,
                     c => c.OverrideProperties
                         .Where(op => op.PropertyType is UnityEngine.Rendering.ShaderPropertyType.Texture)
                         .Select(op => op.TextureValue)
@@ -148,8 +144,10 @@ namespace net.rs64.TexTransTool
                     (l, r) => l.SequenceEqual(r)
                 );
 
-            foreach (var mutableMat in GetTargetMaterials(rendererTargeting, targetMat))
-                ConfigureMaterial(mutableMat, this);
+            foreach (var mat in mats)
+            {
+                registry.RegisterAddTextures(mat, addTextures);
+            }
         }
     }
 
