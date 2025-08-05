@@ -17,9 +17,4 @@ namespace net.rs64.TexTransTool
         internal abstract IEnumerable<Renderer> ModificationTargetRenderers(IRendererTargeting rendererTargeting);
     }
 
-    internal interface IRendererTargetingAffecter { }
-    internal interface IRendererTargetingAffecterWithRuntime : IRendererTargetingAffecter
-    {
-        void AffectingRendererTargeting(IAffectingRendererTargeting rendererTargetingModification);
-    }
 }
