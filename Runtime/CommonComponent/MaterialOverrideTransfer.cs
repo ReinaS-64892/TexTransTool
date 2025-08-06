@@ -131,7 +131,7 @@ namespace net.rs64.TexTransTool
             throw new System.NotImplementedException();
         }
 
-        internal override IEnumerable<Renderer> TargetRenderers(IDomainViewer rendererTargeting)
+        internal override IEnumerable<Renderer> TargetRenderers(IDomainReferenceViewer rendererTargeting)
         {
             throw new System.NotImplementedException();
         }
