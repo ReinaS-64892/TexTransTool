@@ -189,10 +189,6 @@ namespace net.rs64.ParserUtility
         {
             return Encoding.BigEndianUnicode.GetString(bytes);
         }
-        public static string ReadUnicodeString(Stream stream)
-        {
-            throw new NotImplementedException();
-        }
 
         public static void CopyFrom<T>(this Span<T> to, Span<T> from) where T : struct
         {
