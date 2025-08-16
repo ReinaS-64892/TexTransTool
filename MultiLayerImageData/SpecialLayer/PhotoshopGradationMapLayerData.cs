@@ -4,11 +4,11 @@ using net.rs64.TexTransCore;
 
 namespace net.rs64.TexTransTool.MultiLayerImage.LayerData
 {
-    public class PhotoshopGradationMapLayerData : AbstractLayerData
+    public class PhotoshopGradationMapLayerData : AbstractLayerData, IGrabTag
     {
         public bool IsGradientReversed;
         public bool IsGradientDithered;
-        public string GradientInteropMethodKey;
+        public GradientInteropMethod InteropMethod;
         public float Smoothens;
         public ColorKey[] ColorKeys;
         public TransparencyKey[] TransparencyKeys;
@@ -25,4 +25,13 @@ namespace net.rs64.TexTransTool.MultiLayerImage.LayerData
         public float MidLocation;
         public float Transparency;
     }
+    public enum GradientInteropMethod
+    {
+        Classic,
+        Perceptual,
+        Linear,
+        Smooth,
+        Stripes,
+    }
+
 }

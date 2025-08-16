@@ -21,7 +21,16 @@ namespace net.rs64.TexTransTool.PSDParser
 
             gradData.IsGradientReversed = grdm.IsGradientReversed;
             gradData.IsGradientDithered = grdm.IsGradientDithered;
-            gradData.GradientInteropMethodKey = grdm.GradientInteropMethodKey;
+            gradData.InteropMethod = grdm.GradientInteropMethodKey switch
+            {
+                "Gcls" => GradientInteropMethod.Classic,
+                "Perc" => GradientInteropMethod.Perceptual,
+                "Lnr " => GradientInteropMethod.Linear,
+                "Smoo" => GradientInteropMethod.Smooth,
+                "\0\0\fm" => GradientInteropMethod.Stripes,
+
+                _ => GradientInteropMethod.Classic,
+            };
             gradData.Smoothens = grdm.Smoothens / 4096f;
 
             gradData.ColorKeys = grdm.ColorKeys.Select(c => new ColorKey()

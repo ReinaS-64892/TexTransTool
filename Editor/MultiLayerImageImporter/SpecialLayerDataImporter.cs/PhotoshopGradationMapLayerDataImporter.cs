@@ -17,7 +17,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 
             photoshopGradationMapLayer.IsGradientReversed = photoshopGradationMapLayerData.IsGradientReversed;
             photoshopGradationMapLayer.IsGradientDithered = photoshopGradationMapLayerData.IsGradientDithered;
-            photoshopGradationMapLayer.GradientInteropMethodKey = photoshopGradationMapLayerData.GradientInteropMethodKey;
+            photoshopGradationMapLayer.InteropMethod = (PhotoshopGradationMapLayer.GradientInteropMethod)photoshopGradationMapLayerData.InteropMethod;
             photoshopGradationMapLayer.Smoothens = photoshopGradationMapLayerData.Smoothens;
             photoshopGradationMapLayer.ColorKeys = photoshopGradationMapLayerData.ColorKeys.Select(
                 c => new PhotoshopGradationMapLayer.ColorKey()
