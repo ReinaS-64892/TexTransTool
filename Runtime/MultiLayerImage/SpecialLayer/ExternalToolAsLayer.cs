@@ -18,10 +18,12 @@ namespace net.rs64.TexTransTool.MultiLayerImage
     TexTransTool 、また TexTransCore に対して PullRequest として、 コントリビューションをお持ちしております！
     */
 
+    /// <summary>
+    /// レイヤーとして振る舞える外部ツールに共通して実装されるインターフェイス。
+    /// レイヤーとして立ち振る舞うためには AsImageLayer か AsGrabLayer のどちらかを実装してね
+    /// 両方実装したときの振る舞いは未定義です。未定義動作を踏みたくない場合はどちらか片方のみを実装してください。
+    /// </summary>
     // [TexTransToolStablePublicAPI] MLIC が stable になったら付与される予定
-    // レイヤーとして振る舞える外部ツールに共通して実装されるインターフェイス。
-    // レイヤーとして立ち振る舞うためには AsImageLayer か AsGrabLayer のどちらかを実装してね
-    // 両方実装したときの振る舞いは未定義です。未定義動作を踏みたくない場合はどちらか片方のみを実装してください。
     public interface IExternalToolCanBehaveAsLayer
     {
         /*
@@ -43,42 +45,48 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         */
     }
 
-    // 画像を出力するだけのコンポーネントならば
+    /// <summary>
+    /// 画像を出力するだけのコンポーネントならばこれを実装してください
+    /// </summary>
     // [TexTransToolStablePublicAPI]
     public interface IExternalToolCanBehaveAsImageLayerV1 : IExternalToolCanBehaveAsLayer
     {
-        /*
-            これが呼び出されるときに「書き込んでほしいテクスチャ」を渡します。
-            これを実装するコンポーネントは、このレンダーテクスチャに対して全ピクセル書き込んでください！
-            レンダーテクスチャが初期化されている保証はありません。
-
-            randomReadWrite は有効化された状態でかつ、 Linear なテクスチャとして (Not sRGBなテクスチャとして)渡されます。
-            ほかの Texture2D などから書き込む場合は色空間に気をつけて書き込んでください。
-            殆どの場合 Not sRGB なテクスチャに sRGB (ガンマ) なテクスチャを書き込むことになります。
-
-            レンダーテクスチャのフォーマット は　R8G8B8A8_UNorm である保証はありません。 16bit 無ものである可能性もありますが、 RGBA の 4チャンネルあることは保証されます。
-        */
+        /// <summary>
+        /// これが呼び出されるときに「書き込んでほしいテクスチャ」を渡します。
+        /// これを実装するコンポーネントは、このレンダーテクスチャに対して全ピクセル書き込んでください！
+        /// </summary>
+        /// <param name="writeDistentionTexture">
+        /// レンダーテクスチャが初期化されている保証はありません。
+        ///
+        /// randomReadWrite は有効化された状態でかつ、 Linear なテクスチャとして (Not sRGBなテクスチャとして)渡されます。
+        /// ほかの Texture2D などから書き込む場合は色空間に気をつけて書き込んでください。
+        /// 殆どの場合 Not sRGB なテクスチャに sRGB (ガンマ) なテクスチャを書き込むことになります。
+        ///
+        /// レンダーテクスチャのフォーマット は　R8G8B8A8_UNorm である保証はありません。 16bit 無ものである可能性もありますが、 RGBA の 4チャンネルあることは保証されます。
+        /// </param>
         void LoadImage(RenderTexture writeDistentionTexture);
     }
-    // 特殊な色変換などを行いたい場合に
+    /// <summary>
+    /// 特殊な色変換などを行いたい場合ならばこれを実装してください
+    /// </summary>
     // [TexTransToolStablePublicAPI]
     public interface IExternalToolCanBehaveAsGrabLayerV1 : IExternalToolCanBehaveAsLayer
     {
-        /*
-            これが呼び出されるとき、MLIC の今のキャンバスの Alpha が 1 (完全な不透明)になって渡されます。
-            ここで任意の色の変更や操作を行ってください。
-
-            randomReadWrite は有効化された状態でかつ、 Linear なテクスチャとして (Not sRGBなテクスチャとして)渡されます。
-            なお MLIC 内部の空間という定義は現状存在しません、通常はほとんどのレイヤーがガンマであり、ガンマ空間 で様々が行われています。
-
-            レンダーテクスチャのフォーマット は　R8G8B8A8_UNorm である保証はありません。 16bit 無ものである可能性もありますが、 RGBA の 4チャンネルあることは保証されます。
-        */
+        /// <summary>
+        /// ここで任意の色の変更や操作を行ってください。
+        /// </summary>
+        /// <param name="readWiteCanvasTexture">
+        /// これが呼び出されるとき、MLIC の今のキャンバスの Alpha が 1 (完全な不透明)になって渡されます。
+        ///
+        /// randomReadWrite は有効化された状態でかつ、 Linear なテクスチャとして (Not sRGBなテクスチャとして)渡されます。
+        /// なお MLIC 内部の空間という定義は現状存在しません、通常はほとんどのレイヤーがガンマであり、ガンマ空間 で様々が行われています。
+        ///
+        /// レンダーテクスチャのフォーマット は　R8G8B8A8_UNorm である保証はありません。 16bit 無ものである可能性もありますが、 RGBA の 4チャンネルあることは保証されます。
+        /// </param>
         void GrabBlending(RenderTexture readWiteCanvasTexture);
     }
 
 
-    [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
-    [RequireComponent(typeof(IExternalToolCanBehaveAsLayer))]// これ意味がないっぽい ... えぇ そんな
     /*
         上の Interface に [TexTransToolStablePublicAPI] が付与されたとき、このコンポーネントは
 
@@ -86,6 +94,9 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
         という名前空間とアセンブリ名と名前から変更されなくなり、型名は安全に使用できます。
     */
+
+    [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
+    [RequireComponent(typeof(IExternalToolCanBehaveAsLayer))]// これ意味がないっぽい ... えぇ そんな
     public sealed class ExternalToolAsLayer : AbstractLayer
     {
         internal const string ComponentName = "TTT " + nameof(ExternalToolAsLayer);

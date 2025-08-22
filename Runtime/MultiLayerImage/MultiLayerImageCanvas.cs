@@ -10,7 +10,6 @@ using UnityEngine.Serialization;
 
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
-    [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
     /*
         IExternalToolCanBehaveAsLayer に [TexTransToolStablePublicAPI] が実装されたときこのコンポーネントは
 
@@ -18,6 +17,8 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
         という名前空間とアセンブリ名と名前から変更されなくなり、型名は安全に使用できます。
     */
+
+    [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
     public sealed class MultiLayerImageCanvas : TexTransBehavior
     {
         internal const string FoldoutName = "MultiLayerImage";
