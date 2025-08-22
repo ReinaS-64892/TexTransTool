@@ -58,7 +58,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
 
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
-    [RequireComponent(typeof(IExternalToolCanBehaveAsLayer))]
+    [RequireComponent(typeof(IExternalToolCanBehaveAsLayer))]// これ意味がないっぽい ... えぇ そんな
     /*
         上の Interface に [TexTransToolStablePublicAPI] が付与されたとき、このコンポーネントは
 
