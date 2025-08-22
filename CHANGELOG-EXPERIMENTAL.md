@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - TTT の改変系コンポーネントの動作が終わった後に、付与された GameObject を破棄させることのできる ModificationOnlyTag が追加されました (#1039)
 - 既にタイルアトラス化されてしまったモデルのタイルアトラス化を分解し TTT の UV 依存系の改変を可能にする TileAtlasBreaker を追加しました (#1047 #1048)
+- 対応した外部ツールを MLIC のレイヤーにすることができる ExternalToolAsLayer が追加されました (#1057)
 
 ## [v1.0.0](https://github.com/ReinaS-64892/TexTransTool/compare/v0.10.10...v1.0.0) - 2025-06-22
 
