@@ -47,12 +47,32 @@ namespace net.rs64.TexTransTool.MultiLayerImage
     // [TexTransToolStablePublicAPI]
     public interface IExternalToolCanBehaveAsImageLayerV1 : IExternalToolCanBehaveAsLayer
     {
+        /*
+            これが呼び出されるときに「書き込んでほしいテクスチャ」を渡します。
+            これを実装するコンポーネントは、このレンダーテクスチャに対して全ピクセル書き込んでください！
+            レンダーテクスチャが初期化されている保証はありません。
+
+            randomReadWrite は有効化された状態でかつ、 Linear なテクスチャとして (Not sRGBなテクスチャとして)渡されます。
+            ほかの Texture2D などから書き込む場合は色空間に気をつけて書き込んでください。
+            殆どの場合 Not sRGB なテクスチャに sRGB (ガンマ) なテクスチャを書き込むことになります。
+
+            レンダーテクスチャのフォーマット は　R8G8B8A8_UNorm である保証はありません。 16bit 無ものである可能性もありますが、 RGBA の 4チャンネルあることは保証されます。
+        */
         void LoadImage(RenderTexture writeDistentionTexture);
     }
     // 特殊な色変換などを行いたい場合に
     // [TexTransToolStablePublicAPI]
     public interface IExternalToolCanBehaveAsGrabLayerV1 : IExternalToolCanBehaveAsLayer
     {
+        /*
+            これが呼び出されるとき、MLIC の今のキャンバスの Alpha が 1 (完全な不透明)になって渡されます。
+            ここで任意の色の変更や操作を行ってください。
+
+            randomReadWrite は有効化された状態でかつ、 Linear なテクスチャとして (Not sRGBなテクスチャとして)渡されます。
+            なお MLIC 内部の空間という定義は現状存在しません、通常はほとんどのレイヤーがガンマであり、ガンマ空間 で様々が行われています。
+
+            レンダーテクスチャのフォーマット は　R8G8B8A8_UNorm である保証はありません。 16bit 無ものである可能性もありますが、 RGBA の 4チャンネルあることは保証されます。
+        */
         void GrabBlending(RenderTexture readWiteCanvasTexture);
     }
 
