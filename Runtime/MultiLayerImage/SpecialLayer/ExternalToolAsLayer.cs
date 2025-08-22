@@ -24,15 +24,30 @@ namespace net.rs64.TexTransTool.MultiLayerImage
     // 両方実装したときの振る舞いは未定義です。未定義動作を踏みたくない場合はどちらか片方のみを実装してください。
     public interface IExternalToolCanBehaveAsLayer
     {
+        /*
+            これら TTT MLIC のレイヤーとして立ち振る舞うときには下記のような立ち振舞が要求されます。
 
+            ExternalToolAsLayer (FullName:net.rs64.TexTransTool.MultiLayerImage.ExternalToolAsLayer)
+            がコンポーネントが同じ GameObject に存在するとき
+
+            - そのツールの元々の振る舞いをすべて止める必要があります。
+                - 止めなかった場合、二重適用などが発生してしまい予期せぬ動作を発生させます！
+
+            - (optional) ツールにもよりますが対象となるテクスチャなどのプロパティを UI からグレーアウト or 非表示にしたほうが良いです。
+                - 行わなくても問題はないですが、対象は MLIC が持つため、無意味なプロパティとなってしまいます。
+                - ユーザーに混乱を招くかもしれないので、親切にするならば 無効になったかどうかを適切に表示しましょう。
+
+        */
     }
 
     // 画像を出力するだけのコンポーネントならば
+    // [TexTransToolStablePublicAPI]
     public interface IExternalToolCanBehaveAsImageLayerV1 : IExternalToolCanBehaveAsLayer
     {
         void LoadImage(RenderTexture writeDistentionTexture);
     }
     // 特殊な色変換などを行いたい場合に
+    // [TexTransToolStablePublicAPI]
     public interface IExternalToolCanBehaveAsGrabLayerV1 : IExternalToolCanBehaveAsLayer
     {
         void GrabBlending(RenderTexture readWiteCanvasTexture);
@@ -41,6 +56,13 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
     [RequireComponent(typeof(IExternalToolCanBehaveAsLayer))]
+    /*
+        上の Interface に [TexTransToolStablePublicAPI] が付与されたとき、このコンポーネントは
+
+        net.rs64.TexTransTool.MultiLayerImage.ExternalToolAsLayer
+
+        という名前空間と名前から変更されなくなり、型名は安全に使用できます。
+    */
     public sealed class ExternalToolAsLayer : AbstractLayer
     {
         internal const string ComponentName = "TTT " + nameof(ExternalToolAsLayer);
@@ -77,7 +99,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             {
                 case IExternalToolCanBehaveAsImageLayerV1 imageLayerV1:
                     {
-                        return new ExternalToolImageLayerAsImageLayer<ITexTransToolForUnity>(Visible, lm, alphaOperator,Clipping, blKey, imageLayerV1);
+                        return new ExternalToolImageLayerAsImageLayer<ITexTransToolForUnity>(Visible, lm, alphaOperator, Clipping, blKey, imageLayerV1);
                     }
                 case IExternalToolCanBehaveAsGrabLayerV1 grabLayerV1:
                     {
