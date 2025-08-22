@@ -37,6 +37,9 @@ namespace net.rs64.TexTransTool.MultiLayerImage
                 - 行わなくても問題はないですが、対象は MLIC が持つため、無意味なプロパティとなってしまいます。
                 - ユーザーに混乱を招くかもしれないので、親切にするならば 無効になったかどうかを適切に表示しましょう。
 
+            - (optional) MultiLayerImageCanvas の配下にいた場合に、ExternalToolAsLayer を追加するボタンなどを表示しましょう。
+                - できると、ユーザーにとっては便利です！
+
         */
     }
 
@@ -59,9 +62,9 @@ namespace net.rs64.TexTransTool.MultiLayerImage
     /*
         上の Interface に [TexTransToolStablePublicAPI] が付与されたとき、このコンポーネントは
 
-        net.rs64.TexTransTool.MultiLayerImage.ExternalToolAsLayer
+        `net.rs64.TexTransTool.MultiLayerImage.ExternalToolAsLayer, net.rs64.tex-trans-tool.runtime`
 
-        という名前空間と名前から変更されなくなり、型名は安全に使用できます。
+        という名前空間とアセンブリ名と名前から変更されなくなり、型名は安全に使用できます。
     */
     public sealed class ExternalToolAsLayer : AbstractLayer
     {
