@@ -30,12 +30,12 @@ namespace net.rs64.TexTransTool.MultiLayerImage
     // 画像を出力するだけのコンポーネントならば
     public interface IExternalToolCanBehaveAsImageLayerV1 : IExternalToolCanBehaveAsLayer
     {
-        void LoadImage(RenderTexture readWiteCanvasTexture);
+        void LoadImage(RenderTexture writeDistentionTexture);
     }
     // 特殊な色変換などを行いたい場合に
     public interface IExternalToolCanBehaveAsGrabLayerV1 : IExternalToolCanBehaveAsLayer
     {
-        void GrabBlending(RenderTexture writeDistentionTexture);
+        void GrabBlending(RenderTexture readWiteCanvasTexture);
     }
 
 
