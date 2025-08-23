@@ -19,7 +19,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         public bool IsGradientReversed;
         public bool IsGradientDithered;
         public GradientInteropMethod InteropMethod;
-        public float Smoothens;
+        [Range(0, 1)] public float Smoothens;
         public ColorKey[] ColorKeys;
         public TransparencyKey[] TransparencyKeys;
 
