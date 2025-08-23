@@ -127,7 +127,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
                 var keyRange = rightKey.KeyLocation - leftKey.KeyLocation;
                 var relativeLocation = position - leftKey.KeyLocation;
-                var keyRangeScalePotion = TTMath.NotNaN(relativeLocation / keyRange, 0.5f);
+                var keyRangeScalePotion = TTMath.Finite(relativeLocation / keyRange, 0.5f);
                 keyRangeScalePotion = TTMath.Lerp(keyRangeScalePotion, CompactCSpline(keyRangeScalePotion), Smoothens * 0.5f);
 
                 var lCol = leftKey.Color.ToTTCoreWOAlpha();
@@ -185,7 +185,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
                 var keyRange = rightKey.KeyLocation - leftKey.KeyLocation;
                 var relativeLocation = position - leftKey.KeyLocation;
-                var keyRangeScalePotion = TTMath.NotNaN(relativeLocation / keyRange, 0.5f);
+                var keyRangeScalePotion = TTMath.Finite(relativeLocation / keyRange, 0.5f);
 
                 var lTp = leftKey.Transparency;
                 var rTp = rightKey.Transparency;
