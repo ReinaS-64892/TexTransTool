@@ -17,7 +17,7 @@ namespace net.rs64.TexTransTool.PSDImporter
     AssemblyName: net.rs64.ttt-psd-importer.editor
     FullName: net.rs64.TexTransTool.PSDImporter.TexTransToolPSDImporter
     */
-    [ScriptedImporter(1, new string[] { "psb" }, new string[] { "psd" }, AllowCaching = true)]
+    [ScriptedImporter(2, new string[] { "psb" }, new string[] { "psd" }, AllowCaching = true)]
     public class TexTransToolPSDImporter : ScriptedImporter
     {
         public PSDImportMode ImportMode = PSDImportMode.Auto;
