@@ -128,6 +128,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
                 var keyRange = rightKey.KeyLocation - leftKey.KeyLocation;
                 var relativeLocation = position - leftKey.KeyLocation;
                 var keyRangeScalePotion = TTMath.NotNaN(relativeLocation / keyRange, 0.5f);
+                keyRangeScalePotion = TTMath.Lerp(keyRangeScalePotion, CompactCSpline(keyRangeScalePotion), Smoothens * 0.5f);
 
                 var lCol = leftKey.Color.ToTTCoreWOAlpha();
                 var rCol = rightKey.Color.ToTTCoreWOAlpha();
@@ -194,6 +195,18 @@ namespace net.rs64.TexTransTool.MultiLayerImage
                 alpha = TTMath.Lerp(lTp, rTp, keyRangeScalePotion);
 
                 return alpha;
+            }
+
+            float CompactCSpline(float p)
+            {
+                // public static float CubicSplineInterpolate(float p1, float p2, float v1, float v2, float p)
+                // {
+                //     float a = (2f * p1) - (2f * p2) + v1 + v2;
+                //     float b = (-3f * p1) + (3f * p2) - (2f * v1) + v1 - v2;
+                //     return p * (p * (p * a + b) + v1) + p1;
+                // }
+
+                return p * (p * (p * -2 + 3));
             }
         }
 
