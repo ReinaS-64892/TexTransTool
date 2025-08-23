@@ -149,6 +149,7 @@ namespace net.rs64.PSDParser
                 }
 
                 if (layerMaskAdjustmentLayerData.DataSize == 20) { /*lmStream.ReadSubStream(); // 上段のストリームが何とかしてるのでこのストリームを最後まで読む必要はなくスキップ*/ }
+                else if (layerMaskAdjustmentLayerData.Flag.HasFlag(LayerMaskAdjustmentLayerData.MaskOrAdjustmentFlag.UserOrVectorMasksHave) && layerMaskAdjustmentLayerData.DataSize is 28) { }
                 else
                 {
                     layerMaskAdjustmentLayerData.RealFlag = (LayerMaskAdjustmentLayerData.MaskOrAdjustmentFlag)lmStream.ReadByte();

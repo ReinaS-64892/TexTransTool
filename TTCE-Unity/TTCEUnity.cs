@@ -161,6 +161,7 @@ namespace net.rs64.TexTransCoreEngineForUnity
     {
         public static UnityEngine.Color ToUnity(this Color color) { return new(color.R, color.G, color.B, color.A); }
         public static Color ToTTCore(this UnityEngine.Color color) { return new(color.r, color.g, color.b, color.a); }
+        public static ColorWOAlpha ToTTCoreWOAlpha(this UnityEngine.Color color) { return new(color.r, color.g, color.b); }
         public static UnityEngine.Color ToUnity(this ColorWOAlpha color, float alpha = 1f) { return new(color.R, color.G, color.B, alpha); }
         public static UnityEngine.Vector2 ToUnity(this System.Numerics.Vector2 vec) { return new(vec.X, vec.Y); }
         public static UnityEngine.Vector3 ToUnity(this System.Numerics.Vector3 vec) { return new(vec.X, vec.Y, vec.Z); }
