@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - 既にタイルアトラス化されてしまったモデルのタイルアトラス化を分解し TTT の UV 依存系の改変を可能にする TileAtlasBreaker を追加しました (#1047 #1048)
 - 対応した外部ツールを MLIC のレイヤーにすることができる ExternalToolAsLayer が追加されました (#1057)
   - レイヤーになるための安定した API の候補となる API も追加されました (#1057)
+- フォトショップのグラデーションレイヤーを一部完全再現する PhotoshopGradationMapLayer が追加されました (#1058)
 
 ## [v1.0.0](https://github.com/ReinaS-64892/TexTransTool/compare/v0.10.10...v1.0.0) - 2025-06-22
 
