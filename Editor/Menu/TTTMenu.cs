@@ -66,6 +66,7 @@ namespace net.rs64.TexTransTool
             rootVisualElement.hierarchy.Add(root);
 
             var utilitiesScrollView = new ScrollView();
+            utilitiesScrollView.style.flexShrink = 0;
             var scrollViewContainer = utilitiesScrollView.Q<VisualElement>("unity-content-container");
             scrollViewContainer.style.flexDirection = FlexDirection.Row;
             root.hierarchy.Add(utilitiesScrollView);
