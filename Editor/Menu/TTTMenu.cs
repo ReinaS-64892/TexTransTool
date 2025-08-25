@@ -1,4 +1,5 @@
 #nullable enable
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
@@ -15,6 +16,24 @@ namespace net.rs64.TexTransTool
         {
             GetWindow<TTTMenu>();
         }
+        public static void ShowWindow(Type? openMenu = null)
+        {
+            var window = GetWindow<TTTMenu>();
+            if (openMenu is not null) window.ShowMenu(openMenu);
+        }
+
+        private VisualElement? utilityPanel;
+        private void ShowMenu(Type openMenu)
+        {
+            if (utilityPanel is null) { return; }
+
+            var menu = _menus.FirstOrDefault(m => m.GetType() == openMenu);
+            if (menu is null) { return; }
+
+            utilityPanel.hierarchy.Clear();
+            utilityPanel.hierarchy.Add(menu.CreateGUI());
+        }
+
         static List<ITTTMenuWindow> _globalMenus = new() { new TTTConfigMenu() };
         List<ITTTMenuWindow>? _menus;
         public void InitializeMenuList(IEnumerable<ITTTMenuWindow>? insert = null)
@@ -51,7 +70,7 @@ namespace net.rs64.TexTransTool
             scrollViewContainer.style.flexDirection = FlexDirection.Row;
             root.hierarchy.Add(utilitiesScrollView);
 
-            var utilityPanel = new VisualElement();
+            utilityPanel = new VisualElement();
             utilityPanel.style.width = Length.Percent(100);
             root.hierarchy.Add(utilityPanel);
 
