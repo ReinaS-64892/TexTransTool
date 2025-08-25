@@ -15,39 +15,30 @@ namespace net.rs64.TexTransTool
             GetWindow<TTTMenu>();
         }
 
-        MenuState _state;
-        enum MenuState
-        {
-            Config,
-            // TODO : Component を生成できるメニューで、 MenuItem よりもいい感じにできたらいいな
-            // Component,
-            Debug,
-        }
-        Dictionary<MenuState, ITTTConfigWindow> _menus = new(){
-            {MenuState.Config, new TTTConfigMenu()},
-            {MenuState.Debug, new TTTDebugMenu()},
-        };
-
-        Dictionary<MenuState, string> _menuNameCache = new();
+        int _state = 0;
+       static List<ITTTMenuWindow> _menus = new() { new TTTConfigMenu(), new TTTDebugMenu() };
 
         public void OnGUI()
         {
             EditorGUIUtility.labelWidth = 256f;
             using (new EditorGUILayout.HorizontalScope())
-                foreach (var menuState in _menus.Keys)
+                for (var i = 0; _menus.Count > i; i += 1)
                 {
-                    if (_menuNameCache.TryGetValue(menuState, out var menuName) is false) { menuName = menuState.ToString(); }
-                    if (GUILayout.Button(menuName)) { _state = menuState; }
+                    if (GUILayout.Button(_menus[i].MenuName)) { _state = i; }
                 }
 
-
-            if (_menus.TryGetValue(_state, out var tttMenu))
-                tttMenu.OnGUI();
+            _menus[_state].OnGUI();
         }
 
-        internal interface ITTTConfigWindow
+        internal interface ITTTMenuWindow
         {
+            string MenuName { get; }
             void OnGUI();
+        }
+
+        internal static void RegisterMenu(ITTTMenuWindow menuWindow)
+        {
+            _menus.Add(menuWindow);
         }
     }
 }

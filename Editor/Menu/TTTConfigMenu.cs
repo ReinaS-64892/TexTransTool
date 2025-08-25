@@ -5,8 +5,9 @@ using UnityEngine;
 
 namespace net.rs64.TexTransTool
 {
-    internal sealed class TTTConfigMenu : TTTMenu.ITTTConfigWindow
+    internal sealed class TTTConfigMenu : TTTMenu.ITTTMenuWindow
     {
+        public string MenuName => "Config";
         public void OnGUI()
         {
             var globalSettings = TTTGlobalConfig.instance;
@@ -96,6 +97,7 @@ namespace net.rs64.TexTransTool
         }
 
         GUIContent[]? InternalRenderTextureFormatOptionGuiContents;
+
         GUIContent[] GetInternalRenderTextureFormatOption()
         {
             InternalRenderTextureFormatOptionGuiContents ??= new GUIContent[4];
