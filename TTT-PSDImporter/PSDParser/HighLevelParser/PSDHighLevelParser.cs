@@ -326,6 +326,8 @@ namespace net.rs64.TexTransTool.PSDParser
         }
         internal static bool TryParseSpecialLayer(HighLevelParserContext ctx, LayerRecord record, Dictionary<ChannelIDEnum, ChannelImageData> channelInfoAndImage, out AbstractLayerData abstractLayerData)
         {
+            if (record.AdditionalLayerInformation.Any(a => a.ParseError is not null)) { abstractLayerData = null; return false; }
+
             var addLayerInfoTypes = record.AdditionalLayerInformation.Select(i => i.GetType()).ToHashSet();
             var spPair = SpecialLayerParserUtil.SpecialLayerParser.FirstOrDefault(i => addLayerInfoTypes.Contains(i.Key));
 
