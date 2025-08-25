@@ -13,8 +13,9 @@ using UnityEngine;
 
 namespace net.rs64.TexTransTool
 {
-    internal sealed class TTTDebugMenu : TTTMenu.ITTTConfigWindow
+    internal sealed class TTTDebugMenu : TTTMenu.ITTTMenuWindow
     {
+        public string MenuName => "Debug";
         public void OnGUI()
         {
             EditorGUILayout.HelpBox("This is a Debug Menu !!!, If you do not understand it, do not touch this menu !!!\nこれはデバッグメニューです!!! 理解できないのであればこのメニューは使用しないでください!!!", MessageType.Warning);
