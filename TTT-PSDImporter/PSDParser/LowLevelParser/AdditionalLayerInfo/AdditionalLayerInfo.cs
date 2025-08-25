@@ -9,6 +9,7 @@ namespace net.rs64.PSDParser.AdditionalLayerInfo
     {
         public BinaryAddress Address;
         public virtual void ParseAddLY(bool isPSB, BinarySectionStream stream) { }
+        public Exception/*?*/ ParseError;
     }
     [Serializable]
     public class FallBackAdditionalLayerInfoParser : AdditionalLayerInfoBase
