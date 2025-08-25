@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - UVDisassemblyPhase が追加されました (#1047)
 - NDMF Preview にて 同一フェーズ ではなくても、 MaterialModifier などのマテリアル改変系コンポーネントの影響でプレビュー範囲が変わるコンポーネントが正しい範囲で行われるようになりました (#1051)
 
+### Changed
+
+- Migrator などの TTT の拡張 Window が全て TTT Menu に集約されました (#1066)
+
 ### Dependency
 
 - TexTransCore v0.3.x を要求するようになりました。 (#1050)

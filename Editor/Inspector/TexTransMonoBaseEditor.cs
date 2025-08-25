@@ -46,7 +46,7 @@ namespace net.rs64.TexTransTool.Editor
             void DrawMigratorWindowButton()
             {
                 if (GUILayout.Button("Common:button:ThisComponentSaveDataIsOldOpenMigratorWindow".Glc()))
-                    Migration.MigratorWindow.ShowWindow();
+                    TTTMenu.ShowWindow(typeof(Migration.MigratorWindow));
             }
         }
     }
