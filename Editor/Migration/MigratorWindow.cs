@@ -9,16 +9,14 @@ using System.IO;
 namespace net.rs64.TexTransTool.Migration
 {
 
-    internal class MigratorWindow : EditorWindow
+    internal class MigratorWindow : ScriptableObject, TTTMenu.ITTTMenuWindow
     {
-        [MenuItem("Tools/TexTransTool/Migrator")]
-        internal static void ShowWindow()
+        [InitializeOnLoadMethod]
+        static void Registering()
         {
-            var window = GetWindow<MigratorWindow>();
-            window.initialize();
-            window.titleContent = new GUIContent("Migrator");
-            window.Show();
+            TTTMenu.RegisterMenu(CreateInstance<MigratorWindow>());
         }
+        public string MenuName => "Migrator";
 
         Dictionary<GameObject, AAOMigrator.PrefabInfo> PrefabInfo;
         Dictionary<GameObject, int> PrefabMinimumSaveDataVersion;
@@ -28,11 +26,25 @@ namespace net.rs64.TexTransTool.Migration
         Dictionary<string, Toggle> SceneToToggle;
         Dictionary<string, bool> Scene;
 
-        void initialize()
+
+        public VisualElement CreateGUI()
         {
-            rootVisualElement.Clear();
+            var ve = new VisualElement();
+            Closed(ve);
+            return ve;
+        }
+        public void Closed(VisualElement rootVisualElement)
+        {
+            rootVisualElement.hierarchy.Clear();
+            var findMigrationTarget = new Button(() => Initialize(rootVisualElement));
+            findMigrationTarget.text = "FindMigrationTarget";
+            rootVisualElement.hierarchy.Add(findMigrationTarget);
+        }
+        public void Initialize(VisualElement rootVisualElement)
+        {
+            rootVisualElement.hierarchy.Clear();
             var rootScroll = new ScrollView();
-            rootVisualElement.Add(rootScroll);
+            rootVisualElement.hierarchy.Add(rootScroll);
             var rootScrollContainer = rootScroll.contentContainer;
 
 
@@ -70,7 +82,7 @@ namespace net.rs64.TexTransTool.Migration
             var sceneTargetSelectorToggle = new VisualElement();
             rootScrollContainer.hierarchy.Add(sceneTargetSelectorToggle);
 
-            var migrate = new Button(Migration);
+            var migrate = new Button(() => Migration(rootVisualElement));
             migrate.text = "Migrate Selected!";
             rootScrollContainer.hierarchy.Add(migrate);
 
@@ -130,16 +142,7 @@ namespace net.rs64.TexTransTool.Migration
             rootScrollContainer.hierarchy.Add(MigratePSDImporterRegistering);
         }
 
-        void CreateGUI()
-        {
-            if (rootVisualElement.childCount != 0) { return; }
-            var findMigrationTarget = new Button(initialize);
-            findMigrationTarget.text = "FindMigrationTarget";
-            rootVisualElement.Add(findMigrationTarget);
-        }
-
-
-        void Migration()
+        void Migration(VisualElement rootVisualElement)
         {
             var prefabTarget = MigrationTarget.Where(kv => kv.Key.activeSelf && kv.Value).Select(kv => kv.Key).ToHashSet();
 
@@ -148,7 +151,7 @@ namespace net.rs64.TexTransTool.Migration
 
             AAOMigrator.MigratePartial(saveDataVersionValues.Min(), prefabTarget, Scene.Where(kv => kv.Value).Select(kv => kv.Key).ToHashSet());
 
-            this.Close();
+            Closed(rootVisualElement);
         }
 
         internal static void ReflectCallPSDMigration()
