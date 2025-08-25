@@ -16,7 +16,7 @@ namespace net.rs64.TexTransTool
         }
 
         int _state = 0;
-       static List<ITTTMenuWindow> _menus = new() { new TTTConfigMenu(), new TTTDebugMenu() };
+        static List<ITTTMenuWindow> _menus = new() { new TTTConfigMenu() };
 
         public void OnGUI()
         {
