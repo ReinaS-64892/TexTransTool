@@ -108,8 +108,10 @@ namespace net.rs64.TexTransTool
         {
             if (overrideMaterial == null) return (false, 0);
             if (originalMaterial == null) return (false, 0);
-            if (originalMaterial.renderQueue == overrideMaterial.renderQueue) return (false, 0);
-            return (true, overrideMaterial.renderQueue);
+            var originalRenderQueue = originalMaterial.renderQueue != -1 ? originalMaterial.renderQueue : originalMaterial.shader.renderQueue;
+            var overrideRenderQueue = overrideMaterial.renderQueue != -1 ? overrideMaterial.renderQueue : overrideMaterial.shader.renderQueue;
+            if (originalRenderQueue == overrideRenderQueue) return (false, 0);
+            return (true, overrideRenderQueue);
         }
 
         public static IEnumerable<MaterialProperty> GetProperties(Material material)
