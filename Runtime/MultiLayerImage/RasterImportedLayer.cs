@@ -36,13 +36,15 @@ namespace net.rs64.TexTransTool.MultiLayerImage
     public class TTTImportedLayerMask : ILayerMask
     {
         public bool LayerMaskDisabled;
-        public TTTImportedImage MaskTexture;
+        public TTTImportedImage? MaskTexture;
 
-        internal TTTImportedLayerMask(bool layerMaskDisabled, TTTImportedImage importedMask)
+        internal TTTImportedLayerMask(bool layerMaskDisabled, TTTImportedImage? importedMask)
         {
             LayerMaskDisabled = layerMaskDisabled;
             MaskTexture = importedMask;
         }
+
+        public TTTImportedLayerMask() : this(false, null) { }
 
         AlphaMask<ITexTransToolForUnity> ILayerMask.GetAlphaMaskObject(GenerateLayerObjectContext ctx, UnityEngine.Object thisObj, Func<UnityEngine.Object, ILayerMask?> getThisToLayerMask)
         {
@@ -59,7 +61,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             if (maskTexture == null) { return new NoMask<ITexTransToolForUnity>(); }
 
             domain.Observe(maskTexture);
-            return new DiskOnlyToMask<ITexTransToolForUnity>(engine.Wrapping(maskTexture!));
+            return new DiskOnlyToMask<ITexTransToolForUnity>(engine.Wrapping(maskTexture));
         }
     }
 }
