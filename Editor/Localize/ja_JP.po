@@ -759,7 +759,7 @@ msgid "LevelAdjustmentLayer:prop:InputCeiling"
 msgstr "入力の上限"
 
 msgid "LevelAdjustmentLayer:prop:Gamma"
-msgstr "ガンマ"
+msgstr "ガンマ値"
 
 msgid "LevelAdjustmentLayer:prop:OutputFloor"
 msgstr "出力の下限"
