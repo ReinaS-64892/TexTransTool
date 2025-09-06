@@ -30,39 +30,40 @@ namespace net.rs64.TexTransTool.Editor.MultiLayerImage
         {
             EditorGUI.BeginProperty(position, label, property);
 
-            var currentPosition = position;
-            currentPosition.height = EditorGUIUtility.singleLineHeight;
+            position.height = EditorGUIUtility.singleLineHeight;
+            property.isExpanded = EditorGUI.Foldout(position, property.isExpanded, label);
+            position.y += EditorGUIUtility.singleLineHeight;
 
-            EditorGUI.LabelField(currentPosition, label, EditorStyles.boldLabel);
-            currentPosition.y += EditorGUIUtility.singleLineHeight;
+            if (property.isExpanded)
+            {
+                EditorGUI.indentLevel++;
 
-            var inputFloor = property.FindPropertyRelative(nameof(LevelAdjustmentLayer.Level.InputFloor));
-            var inputCeiling = property.FindPropertyRelative(nameof(LevelAdjustmentLayer.Level.InputCeiling));
-            var gamma = property.FindPropertyRelative(nameof(LevelAdjustmentLayer.Level.Gamma));
-            var outputFloor = property.FindPropertyRelative(nameof(LevelAdjustmentLayer.Level.OutputFloor));
-            var outputCeiling = property.FindPropertyRelative(nameof(LevelAdjustmentLayer.Level.OutputCeiling));
-            
-            EditorGUI.indentLevel++;
-
-            EditorGUI.PropertyField(currentPosition, inputFloor, "LevelAdjustmentLayer:prop:InputFloor".Glc());
-            currentPosition.y += EditorGUIUtility.singleLineHeight;
-            EditorGUI.PropertyField(currentPosition, inputCeiling, "LevelAdjustmentLayer:prop:InputCeiling".Glc());
-            currentPosition.y += EditorGUIUtility.singleLineHeight;
-            EditorGUI.PropertyField(currentPosition, gamma, "LevelAdjustmentLayer:prop:Gamma".Glc());
-            currentPosition.y += EditorGUIUtility.singleLineHeight;
-            EditorGUI.PropertyField(currentPosition, outputFloor, "LevelAdjustmentLayer:prop:OutputFloor".Glc());
-            currentPosition.y += EditorGUIUtility.singleLineHeight;
-            EditorGUI.PropertyField(currentPosition, outputCeiling, "LevelAdjustmentLayer:prop:OutputCeiling".Glc());
-            currentPosition.y += EditorGUIUtility.singleLineHeight;
-            
-            EditorGUI.indentLevel--;
+                var inputFloor = property.FindPropertyRelative(nameof(LevelAdjustmentLayer.Level.InputFloor));
+                var inputCeiling = property.FindPropertyRelative(nameof(LevelAdjustmentLayer.Level.InputCeiling));
+                var gamma = property.FindPropertyRelative(nameof(LevelAdjustmentLayer.Level.Gamma));
+                var outputFloor = property.FindPropertyRelative(nameof(LevelAdjustmentLayer.Level.OutputFloor));
+                var outputCeiling = property.FindPropertyRelative(nameof(LevelAdjustmentLayer.Level.OutputCeiling));
+                
+                EditorGUI.PropertyField(position, inputFloor, "LevelAdjustmentLayer:prop:InputFloor".Glc());
+                position.y += EditorGUIUtility.singleLineHeight;
+                EditorGUI.PropertyField(position, inputCeiling, "LevelAdjustmentLayer:prop:InputCeiling".Glc());
+                position.y += EditorGUIUtility.singleLineHeight;
+                EditorGUI.PropertyField(position, gamma, "LevelAdjustmentLayer:prop:Gamma".Glc());
+                position.y += EditorGUIUtility.singleLineHeight;
+                EditorGUI.PropertyField(position, outputFloor, "LevelAdjustmentLayer:prop:OutputFloor".Glc());
+                position.y += EditorGUIUtility.singleLineHeight;
+                EditorGUI.PropertyField(position, outputCeiling, "LevelAdjustmentLayer:prop:OutputCeiling".Glc());
+                position.y += EditorGUIUtility.singleLineHeight;
+                
+                EditorGUI.indentLevel--;
+            }
 
             EditorGUI.EndProperty();
         }
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
-            return EditorGUIUtility.singleLineHeight * 6;
+            return property.isExpanded ? EditorGUIUtility.singleLineHeight * 6 : EditorGUIUtility.singleLineHeight;
         }
     }
 }
