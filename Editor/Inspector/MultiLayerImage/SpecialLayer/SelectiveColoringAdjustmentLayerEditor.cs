@@ -12,12 +12,6 @@ namespace net.rs64.TexTransTool.Editor.MultiLayerImage
     {
         protected override void DrawInnerProperties()
         {
-            serializedObject.Update();
-
-            EditorGUILayout.LabelField("SelectiveColoringAdjustmentLayer:label:CMYK".Glc(), EditorStyles.boldLabel);
-
-            EditorGUILayout.Space();
-
             DrawCMYKProperty("SelectiveColoringAdjustmentLayer:label:RedsCMYK".Glc(), nameof(SelectiveColoringAdjustmentLayer.RedsCMYK));
             DrawCMYKProperty("SelectiveColoringAdjustmentLayer:label:YellowsCMYK".Glc(), nameof(SelectiveColoringAdjustmentLayer.YellowsCMYK));
             DrawCMYKProperty("SelectiveColoringAdjustmentLayer:label:GreensCMYK".Glc(), nameof(SelectiveColoringAdjustmentLayer.GreensCMYK));
@@ -32,36 +26,23 @@ namespace net.rs64.TexTransTool.Editor.MultiLayerImage
 
             var isAbsolute = serializedObject.FindProperty(nameof(SelectiveColoringAdjustmentLayer.IsAbsolute));
             EditorGUILayout.PropertyField(isAbsolute, "SelectiveColoringAdjustmentLayer:prop:IsAbsolute".Glc());
-
-            serializedObject.ApplyModifiedProperties();
         }
 
         private void DrawCMYKProperty(GUIContent label, string propertyName)
         {
             var property = serializedObject.FindProperty(propertyName);
-            var vector = property.vector4Value;
-            
-            // 境界を分かりやすくするためのボックス
-            EditorGUILayout.BeginVertical("helpbox");
-            
-            EditorGUILayout.LabelField(label, EditorStyles.boldLabel);
-
-            var padding = 5;
-                        
-            EditorGUILayout.BeginHorizontal();
-            vector.x = EditorGUILayout.Slider(vector.x, -1f, 1f);
-            EditorGUILayout.Space(padding);
-            vector.y = EditorGUILayout.Slider(vector.y, -1f, 1f);
-            EditorGUILayout.Space(padding);
-            vector.z = EditorGUILayout.Slider(vector.z, -1f, 1f);
-            EditorGUILayout.Space(padding);
-            vector.w = EditorGUILayout.Slider(vector.w, -1f, 1f);
-            EditorGUILayout.EndHorizontal();
-            
-            property.vector4Value = vector;
-                        
-            EditorGUILayout.EndVertical();
-            EditorGUILayout.Space(2);
+            property.isExpanded = EditorGUILayout.Foldout(property.isExpanded, label);
+            if (property.isExpanded)
+            {
+                EditorGUI.indentLevel++;
+                var vector = property.vector4Value;
+                vector.x = EditorGUILayout.Slider("SelectiveColoringAdjustmentLayer:label:CyansCMYK".Glc(), vector.x, -1, 1);
+                vector.y = EditorGUILayout.Slider("SelectiveColoringAdjustmentLayer:label:MagentasCMYK".Glc(), vector.y, -1, 1);
+                vector.z = EditorGUILayout.Slider("SelectiveColoringAdjustmentLayer:label:YellowsCMYK".Glc(), vector.z, -1, 1);
+                vector.w = EditorGUILayout.Slider("SelectiveColoringAdjustmentLayer:label:BlacksCMYK".Glc(), vector.w, -1, 1);
+                property.vector4Value = vector;
+                EditorGUI.indentLevel--;
+            }
         }
     }
 }

@@ -818,9 +818,6 @@ msgstr "ストライプ"
 
 # SelectiveColoringAdjustmentLayer
 
-msgid "SelectiveColoringAdjustmentLayer:label:CMYK"
-msgstr "CMYK (シアン・マゼンダ・イエロー・ブラック)"
-
 msgid "SelectiveColoringAdjustmentLayer:label:RedsCMYK"
 msgstr "赤"
 
@@ -843,7 +840,7 @@ msgid "SelectiveColoringAdjustmentLayer:label:WhitesCMYK"
 msgstr "白"
 
 msgid "SelectiveColoringAdjustmentLayer:label:NeutralsCMYK"
-msgstr "中性"
+msgstr "ニュートラル"
 
 msgid "SelectiveColoringAdjustmentLayer:label:BlacksCMYK"
 msgstr "黒"

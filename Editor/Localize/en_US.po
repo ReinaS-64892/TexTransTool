@@ -822,9 +822,6 @@ msgstr "Stripes"
 
 # SelectiveColoringAdjustmentLayer
 
-msgid "SelectiveColoringAdjustmentLayer:label:CMYK"
-msgstr "CMYK (Cyan, Magenta, Yellow, Black)"
-
 msgid "SelectiveColoringAdjustmentLayer:label:RedsCMYK"
 msgstr "Red"
 
