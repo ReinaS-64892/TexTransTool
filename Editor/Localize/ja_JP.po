@@ -691,7 +691,7 @@ msgid "AbstractLayer:prop:Clipping"
 msgstr "クリッピング"
 
 msgid "AbstractLayer:prop:BlendTypeKey"
-msgstr "ブレンドタイプキー"
+msgstr "合成モード"
 
 msgid "AbstractLayer:prop:LayerMask"
 msgstr "レイヤーマスク"
