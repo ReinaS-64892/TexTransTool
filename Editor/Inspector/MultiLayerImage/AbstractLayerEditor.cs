@@ -69,11 +69,13 @@ namespace net.rs64.TexTransTool.Editor.MultiLayerImage
         }
         protected sealed override void OnTexTransComponentInspectorGUI()
         {
+            serializedObject.Update();
             EditorGUI.BeginChangeCheck();
             DrawCommonProperties();
             EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
             DrawInnerProperties();
             _needUpdate |= EditorGUI.EndChangeCheck();
+            serializedObject.ApplyModifiedProperties();
         }
 
         // GeneralCommonLayerSetting
