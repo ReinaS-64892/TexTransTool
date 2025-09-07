@@ -67,11 +67,41 @@ namespace net.rs64.TexTransTool.Editor.MultiLayerImage
             _imageLayerPreviewResult.Value.domain.Dispose();
             _imageLayerPreviewResult = null;
         }
-        protected override void OnTexTransComponentInspectorGUI()
+        protected sealed override void OnTexTransComponentInspectorGUI()
         {
             EditorGUI.BeginChangeCheck();
-            base.OnTexTransComponentInspectorGUI();
+            DrawCommonProperties();
+            EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
+            DrawInnerProperties();
             _needUpdate |= EditorGUI.EndChangeCheck();
+        }
+
+        // GeneralCommonLayerSetting
+        protected void DrawCommonProperties()
+        {
+            var blendTypeKey = serializedObject.FindProperty(nameof(AbstractLayer.BlendTypeKey));
+            var opacity = serializedObject.FindProperty(nameof(AbstractLayer.Opacity));
+            var clipping = serializedObject.FindProperty(nameof(AbstractLayer.Clipping));
+            var layerMask = serializedObject.FindProperty(nameof(AbstractLayer.LayerMask));
+
+            EditorGUILayout.PropertyField(blendTypeKey, "AbstractLayer:prop:BlendTypeKey".Glc());
+            EditorGUILayout.PropertyField(opacity, "AbstractLayer:prop:Opacity".Glc());
+            EditorGUILayout.PropertyField(clipping, "AbstractLayer:prop:Clipping".Glc());
+            EditorGUILayout.PropertyField(layerMask, "AbstractLayer:prop:LayerMask".Glc());
+        }
+
+        protected virtual void DrawInnerProperties()
+        {
+            var iterator = serializedObject.GetIterator();
+            iterator.NextVisible(true); // m_script
+            for (int i = 0; i < 4; i++) // GeneralCommonLayerSetting
+            {
+                iterator.NextVisible(false);
+            }
+            while (iterator.NextVisible(false))
+            {
+                EditorGUILayout.PropertyField(iterator);
+            }
         }
 
         public override bool HasPreviewGUI() { return _imageLayerPreviewResult is not null; }
