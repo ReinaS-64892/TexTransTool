@@ -14,6 +14,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - レイヤーになるための安定した API の候補となる API も追加されました (#1057)
 - フォトショップのグラデーションレイヤーを一部完全再現する PhotoshopGradationMapLayer が追加されました (#1058)
 
+### Changed
+
+- MenuItem から MLIC のレイヤーとなるコンポーネントを生成するとき、生成される位置が子階層の一番最初に追加されるようになりました (#1068)
+
+### Fixed
+
+- TTTImportedLayerMask を新規でレイヤーに割り当てることができない問題を修正しました (#1070)
+
 ## [v1.0.0](https://github.com/ReinaS-64892/TexTransTool/compare/v0.10.10...v1.0.0) - 2025-06-22
 
 ## [v0.10.10](https://github.com/ReinaS-64892/TexTransTool/compare/v0.10.9...v0.10.10) - 2025-06-20
