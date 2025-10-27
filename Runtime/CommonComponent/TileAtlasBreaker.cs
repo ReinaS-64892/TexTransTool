@@ -83,6 +83,7 @@ namespace net.rs64.TexTransTool
             }
 
             var mutableMesh = UnityEngine.Object.Instantiate(mesh);
+            mutableMesh.name = mesh.name + "(TileBraked)";
 
             mutableMesh.subMeshCount = 0;
             mutableMesh.subMeshCount = 4;
