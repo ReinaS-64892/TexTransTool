@@ -269,7 +269,7 @@ namespace net.rs64.TexTransTool.Decal
 
     internal static class DecalContextUtility
     {
-        internal static MeshData GetToMemorizedMeshData(this Renderer r) => r.Memo(MeshData.GetMeshData, i => i.Dispose());
+        internal static MeshData GetToMemorizedMeshData(this Renderer r) => (r, r.GetMesh()).Memo<(Renderer, Mesh), MeshData>(r => MeshData.GetMeshData(r.Item1), i => i.Dispose());
         internal static IEnumerable<Renderer> FilterDecalTarget(IDomainReferenceViewer rendererTargeting, IEnumerable<Renderer> targetRenderers, string targetPropertyName)
         {
             foreach (var tr in targetRenderers)
