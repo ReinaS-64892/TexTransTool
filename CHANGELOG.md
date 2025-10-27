@@ -17,6 +17,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Migrator などの TTT の拡張 Window が全て TTT Menu に集約されました (#1066)
 
+### Fixed
+
+- AtlasTexture などのメッシュを編集するコンポーネントの後に Decal系が動作したときに誤ったUVでデカールが貼られてしまう問題を修正 (#1076)
+- AtlasTexture が ポリゴンの存在しない SubMesh を持った Mesh を持つレンダラーが対象になったときに正しくメッシュの置き換えが行われない問題を修正 (#1077)
+
 ### Dependency
 
 - TexTransCore v0.3.x を要求するようになりました。 (#1050)
