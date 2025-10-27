@@ -23,32 +23,58 @@ namespace net.rs64.TexTransTool.TextureAtlas
             for (var rendererIndex = 0; targetRenderers.Length > rendererIndex; rendererIndex += 1)
             {
                 var renderer = targetRenderers[rendererIndex];
-
-                var mats = targeting.GetMaterials(renderer);
-                var mesh = targeting.GetMesh(renderer)!;
-                var meshID = atlasMeshSourceContext.Normalized2MeshID[atlasMeshSourceContext.Origin2NormalizedMesh[mesh!]];
-
-                var atlasSubSet = new AtlasSubMeshIndexID?[mats.Length];
-                for (var subMeshIndex = 0; mats.Length > subMeshIndex; subMeshIndex += 1)
-                {
-                    var mat = mats[subMeshIndex];
-
-                    if (mat == null) { continue; }
-                    if (targetMaterials.Contains(mat) is false) { continue; }
-                    if (mesh.GetSubMesh(Math.Clamp(subMeshIndex, 0, mesh.subMeshCount - 1)).indexCount is 0) { continue; }
-
-                    var matID = materialGroupingContext.GetMaterialGroupID(mat);
-                    Debug.Assert(matID is not -1);
-
-                    var atSubData = new AtlasSubMeshIndexID(meshID, subMeshIndex, matID);
-
-                    atlasSubSet[subMeshIndex] = atSubData;
-                    AtlasSubMeshIndexIDHash.Add(atSubData);
-                }
+                var atlasSubSet = CreateSubSet(targeting, atlasMeshSourceContext, materialGroupingContext, renderer);
+                AtlasSubMeshIndexIDHash.UnionWith(atlasSubSet.Where(v => v.HasValue).Select(v => v!.Value));
                 AtlasSubSets.Add(atlasSubSet);
             }
 
             IdenticalSubSetRemove(AtlasSubSets);
+        }
+
+        private static AtlasSubMeshIndexID?[] CreateSubSet(IDomainReferenceViewer targeting, AtlasMeshSourceContext atlasMeshSourceContext, MaterialGroupingContext materialGroupingContext, Renderer renderer)
+        {
+            var mats = targeting.GetMaterials(renderer);
+            var mesh = targeting.GetMesh(renderer)!;
+            var meshID = atlasMeshSourceContext.Normalized2MeshID[atlasMeshSourceContext.Origin2NormalizedMesh[mesh!]];
+
+            var atlasSubSet = new AtlasSubMeshIndexID?[mats.Length];
+            for (var subMeshIndex = 0; mats.Length > subMeshIndex; subMeshIndex += 1)
+            {
+                var mat = mats[subMeshIndex];
+
+                if (mat == null) { continue; }
+                var matID = materialGroupingContext.GetMaterialGroupID(mat);
+                if (matID is -1) { continue; }
+                if (mesh.GetSubMesh(Math.Clamp(subMeshIndex, 0, mesh.subMeshCount - 1)).indexCount is 0) { continue; }
+
+                atlasSubSet[subMeshIndex] = new AtlasSubMeshIndexID(meshID, subMeshIndex, matID);
+            }
+
+            return atlasSubSet;
+        }
+        internal static int GetIdenticalSubSetID(IDomainReferenceViewer domain, AtlasContext atlasContext, Renderer renderer)
+        {
+            var mesh = domain.GetMesh(renderer);
+            if (mesh == null) { return -1; }
+            if (atlasContext.NormalizedMeshCtx.Origin2NormalizedMesh.ContainsKey(mesh) is false) { return -1; }
+
+            var subSetID = CreateSubSet(domain, atlasContext.NormalizedMeshCtx, atlasContext.MaterialGroupingCtx, renderer);
+            int GetIdenticalSubSet(List<AtlasSubMeshIndexID?[]> atlasSubSetAll, AtlasSubMeshIndexID?[] findSource)
+            {
+                return atlasSubSetAll.FindIndex(subSet =>
+                {
+                    if (subSet.Length == findSource.Length && subSet.SequenceEqual(findSource)) { return true; }
+                    if (SubPartEqual(subSet, findSource))
+                    {
+                        // マテリアルスロット数が少ないレンダラーに subMesh が長いメッシュを割り当てる分には問題がない。
+                        // だが逆は壊れる。
+                        var subSetIsMinimum = subSet.Length < findSource.Length;
+                        return subSetIsMinimum is false;
+                    }
+                    return false;
+                });
+            }
+            return GetIdenticalSubSet(atlasContext.AtlasSubMeshIndexSetCtx.AtlasSubSets, subSetID);
         }
 
 

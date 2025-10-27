@@ -58,7 +58,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             var domainsAllowsRenderers = GetAtlasAllowedRenderers(domain, domain.EnumerateRenderers(), atlasSetting.IncludeDisabledRenderer);
             var targetMaterials = GetTargetMaterials(domain, domainsAllowsRenderers).ToHashSet();
             var targetRenderers = FilterTargetRenderers(targeting, domainsAllowsRenderers, targetMaterials);
-            targetRenderers = FilterExistUVChannel(targeting,targetRenderers, atlasSetting.AtlasTargetUVChannel);
+            targetRenderers = FilterExistUVChannel(targeting, targetRenderers, atlasSetting.AtlasTargetUVChannel);
 
             if (targetMaterials.Any() is false || targetRenderers.Any() is false) { TTLog.Info("AtlasTexture:info:TargetNotFound"); return; }
 
@@ -113,7 +113,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                     .Any(targetMaterials.Contains)
                 ).ToArray();
         }
-        private Renderer[] FilterExistUVChannel(IDomainReferenceViewer targeting,Renderer[] targetRenderers, UVChannel atlasTargetUVChannel)
+        private Renderer[] FilterExistUVChannel(IDomainReferenceViewer targeting, Renderer[] targetRenderers, UVChannel atlasTargetUVChannel)
         {
             return targetRenderers.Where(r => targeting.GetMesh(r).HasUV((int)atlasTargetUVChannel)).ToArray();
         }
@@ -237,34 +237,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
             {
                 var mesh = domain.GetMesh(renderer);
                 if (mesh == null) { continue; }
-                if (atlasContext.NormalizedMeshCtx.Origin2NormalizedMesh.ContainsKey(mesh) is false) { continue; }
-
-                var meshID = atlasContext.NormalizedMeshCtx.Normalized2MeshID[atlasContext.NormalizedMeshCtx.Origin2NormalizedMesh[mesh]];
-                var matIDs = domain.GetMaterials(renderer).Select(m => m != null ? atlasContext.MaterialGroupingCtx.GetMaterialGroupID(m) : -1).ToArray();
-
-                var subSet = new AtlasSubMeshIndexID?[matIDs.Length];
-                for (var i = 0; subSet.Length > i; i += 1)
-                {
-                    var matID = matIDs[i];
-                    if (matID is -1) { subSet[i] = null; }
-                    else { subSet[i] = new AtlasSubMeshIndexID(meshID, i, matID); }
-                }
-
-
-
-                var identicalSubSetID = GetIdenticalSubSet(atlasContext.AtlasSubMeshIndexSetCtx.AtlasSubSets, subSet);
-                int GetIdenticalSubSet(List<AtlasSubMeshIndexID?[]> atlasSubSetAll, AtlasSubMeshIndexID?[] findSource)
-                {
-                    return atlasSubSetAll.FindIndex(subSet =>
-                    {
-
-                        if (subSet.Length == findSource.Length && subSet.SequenceEqual(findSource)) { return true; }
-                        if (AtlasSubMeshIndexIDSetContext.SubPartEqual(subSet, findSource) is false) { return false; }
-                        return subSet.Length < findSource.Length is false;
-                    });
-                }
+                var identicalSubSetID = AtlasSubMeshIndexIDSetContext.GetIdenticalSubSetID(domain, atlasContext, renderer);
                 if (identicalSubSetID is -1) { continue; }
-
 
                 var atlasMesh = atlasedMeshes[identicalSubSetID];
                 domain.SetMesh(renderer, atlasMesh);
