@@ -55,6 +55,7 @@ namespace net.rs64.TexTransTool.Editor.MultiLayerImage
         {
             var sTarget = serializedObject;
             EditorGUILayout.PropertyField(sTarget.FindProperty(nameof(MultiLayerImageCanvas.TargetTexture)));
+            EditorGUILayout.PropertyField(sTarget.FindProperty(nameof(MultiLayerImageCanvas.BlendTypeKey)), "MultiLayerImageCanvas:prop:BlendTypeKey".Glc());
         }
         public override bool HasPreviewGUI() { return true; }
         public override void DrawPreview(Rect previewArea)

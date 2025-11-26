@@ -680,6 +680,9 @@ msgstr "Target not found!"
 
 # MultiLayerImageCanvas
 
+msgid "MultiLayerImageCanvas:prop:BlendTypeKey"
+msgstr "Blend Mode"
+
 msgid "MultiLayerImageCanvas:info:TargetNotSet"
 msgstr "Target not set!"
 

@@ -676,6 +676,9 @@ msgstr "適用対象が存在しません！"
 
 # MultiLayerImageCanvas
 
+msgid "MultiLayerImageCanvas:prop:BlendTypeKey"
+msgstr "合成モード"
+
 msgid "MultiLayerImageCanvas:info:TargetNotSet"
 msgstr "適用対象が設定されていません！"
 

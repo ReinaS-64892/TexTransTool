@@ -27,6 +27,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         internal override TexTransPhase PhaseDefine => TexTransPhase.BeforeUVModification;
 
         [FormerlySerializedAs("TextureSelector")] public TextureSelector TargetTexture = new();
+        [BlendTypeKey] public string BlendTypeKey = ITexTransToolForUnity.BL_KEY_NOT_BLEND;
 
         [SerializeField, HideInInspector] public TTTImportedCanvasDescription? tttImportedCanvasDescription;
 
@@ -53,8 +54,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             using var result = EvaluateCanvas(new(domain, (canvasWidth, canvasHeigh), targetContainsMaterials));
             Profiler.EndSample();
 
-            var notBlendKey = texTransUnityCoreEngine.QueryBlendKey("NotBlend");
-            foreach (var target in nowDomainsTargets) { domain.AddTextureStack(target, result, notBlendKey); }
+            foreach (var target in nowDomainsTargets) { domain.AddTextureStack(target, result, texTransUnityCoreEngine.QueryBlendKey(BlendTypeKey)); }
         }
 
         internal ITTRenderTexture EvaluateCanvas(GenerateLayerObjectContext ctx)
