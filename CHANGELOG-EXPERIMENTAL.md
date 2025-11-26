@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - 対応した外部ツールを MLIC のレイヤーにすることができる ExternalToolAsLayer が追加されました (#1057)
   - レイヤーになるための安定した API の候補となる API も追加されました (#1057)
 - フォトショップのグラデーションレイヤーを一部完全再現する PhotoshopGradationMapLayer が追加されました (#1058)
+- MultiLayerImageCanvase と レイヤー のインスペクターが日本語化されました (#1071)
 
 ### Changed
 
