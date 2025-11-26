@@ -54,7 +54,8 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             using var result = EvaluateCanvas(new(domain, (canvasWidth, canvasHeigh), targetContainsMaterials));
             Profiler.EndSample();
 
-            foreach (var target in nowDomainsTargets) { domain.AddTextureStack(target, result, texTransUnityCoreEngine.QueryBlendKey(BlendTypeKey)); }
+            var blendKey = texTransUnityCoreEngine.QueryBlendKey(BlendTypeKey);
+            foreach (var target in nowDomainsTargets) { domain.AddTextureStack(target, result, blendKey); }
         }
 
         internal ITTRenderTexture EvaluateCanvas(GenerateLayerObjectContext ctx)
