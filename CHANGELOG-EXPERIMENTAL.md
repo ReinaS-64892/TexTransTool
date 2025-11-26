@@ -22,6 +22,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 
 - TTTImportedLayerMask を新規でレイヤーに割り当てることができない問題を修正しました (#1070)
+- TTT PSD Importer が subtract (除算) のインポートを行えてなかった問題を修正しました (#1078)
 
 ## [v1.0.0](https://github.com/ReinaS-64892/TexTransTool/compare/v0.10.10...v1.0.0) - 2025-06-22
 
