@@ -30,7 +30,7 @@ namespace net.rs64.TexTransTool
             if (TargetMaterial == null) { TTLog.Info("MaterialModifier:info:TargetNotSet"); return; }
 
             var mats = GetTargetMaterials(domain, TargetMaterial);
-            if (mats.Any() is false) { TTLog.Info("MaterialModifier:info:TargetNotFound"); return; }
+            if (mats.Count == 0) { TTLog.Info("MaterialModifier:info:TargetNotFound"); return; }
 
             foreach (var mat in mats)
             {
@@ -128,7 +128,7 @@ namespace net.rs64.TexTransTool
             }
         }
 
-        private static IEnumerable<Material> GetTargetMaterials(IDomainReferenceViewer rendererTargeting, Material? target)
+        private static HashSet<Material> GetTargetMaterials(IDomainReferenceViewer rendererTargeting, Material? target)
         { return rendererTargeting.GetDomainsMaterialsHashSet(target); }
         internal override IEnumerable<Renderer> TargetRenderers(IDomainReferenceViewer rendererTargeting)
         { return rendererTargeting.RendererFilterForMaterial(rendererTargeting.ObserveToGet(this, i => i.TargetMaterial)); }
