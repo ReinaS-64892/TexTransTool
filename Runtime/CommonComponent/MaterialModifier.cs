@@ -27,10 +27,10 @@ namespace net.rs64.TexTransTool
         {
             domain.Observe(this);
 
-            if (TargetMaterial == null) { TTLog.Info("MaterialModifier:info:TargetNotSet"); return; }
+            if (TargetMaterial == null) { TTLog.Info("MaterialModifier:info:TargetNotSet", this); return; }
 
             var mats = GetTargetMaterials(domain, TargetMaterial);
-            if (mats.Count == 0) { TTLog.Info("MaterialModifier:info:TargetNotFound"); return; }
+            if (mats.Count == 0) { TTLog.Info("MaterialModifier:info:TargetNotFound", this); return; }
 
             foreach (var mat in mats)
             {
