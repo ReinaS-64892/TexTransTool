@@ -20,7 +20,7 @@ namespace net.rs64.TexTransTool
         internal const string MenuPath = TextureBlender.FoldoutName + "/" + ComponentName;
         internal override TexTransPhase PhaseDefine => TexTransPhase.MaterialModification;
 
-        public Material? TargetMaterial;
+        [MaterialSelector] public Material? TargetMaterial;
         [ExpandTexture2D] public Texture2D? DecalTexture;
 
         public Color Color = Color.white;
