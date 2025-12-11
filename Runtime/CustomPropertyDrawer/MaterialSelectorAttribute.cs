@@ -13,9 +13,9 @@ namespace net.rs64.TexTransTool
         public Side Button { get; }
         public Side Popup { get; }
 
-        public MaterialSelectorAttribute(Side side = Side.Right, Side popup = Side.Left)
+        public MaterialSelectorAttribute(Side button = Side.Right, Side popup = Side.Left)
         {
-            Button = side;
+            Button = button;
             Popup = popup;
         }
     }
