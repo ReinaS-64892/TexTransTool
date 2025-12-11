@@ -40,12 +40,12 @@ namespace net.rs64.TexTransTool
         }
 
 
-        public static void ConfigureMaterial(Material editableMat, MaterialModifier config)
+        internal static void ConfigureMaterial(Material editableMat, MaterialModifier config)
         {
             ConfigureMaterial(editableMat, config.IsOverrideShader, config.OverrideShader, config.IsOverrideRenderQueue, config.OverrideRenderQueue, config.OverrideProperties);
         }
 
-        public static void ConfigureMaterial(Material editableMat, bool isOverrideShader, Shader? overrideShader, bool isOverrideRenderQueue, int overrideRenderQueue, IEnumerable<MaterialProperty> overrideProperties)
+        internal static void ConfigureMaterial(Material editableMat, bool isOverrideShader, Shader? overrideShader, bool isOverrideRenderQueue, int overrideRenderQueue, IEnumerable<MaterialProperty> overrideProperties)
         {
             if (isOverrideShader)
             {
@@ -62,7 +62,7 @@ namespace net.rs64.TexTransTool
             }
         }
 
-        public static void GetAllOverridesAndApply(Material originalMaterial, Material overrideMaterial, Material editableTargetMaterial)
+        internal static void GetAllOverridesAndApply(Material originalMaterial, Material overrideMaterial, Material editableTargetMaterial)
         {
             var (isOverideShader, overrideShader) = GetOverrideShader(originalMaterial, overrideMaterial);
             var (isOverrideRenderQueue, overrideRenderQueue) = GetOverrideRenderQueue(originalMaterial, overrideMaterial);
@@ -70,7 +70,7 @@ namespace net.rs64.TexTransTool
             ConfigureMaterial(editableTargetMaterial, isOverideShader, overrideShader, isOverrideRenderQueue, overrideRenderQueue, overrideProperties);
         }
 
-        public static IEnumerable<MaterialProperty> GetOverrideProperties(Material originalMaterial, Material overrideMaterial)
+        internal static IEnumerable<MaterialProperty> GetOverrideProperties(Material originalMaterial, Material overrideMaterial)
         {
             if (overrideMaterial == null) yield break;
             if (originalMaterial == null) yield break;
@@ -96,7 +96,7 @@ namespace net.rs64.TexTransTool
             }
         }
 
-        public static (bool, Shader?) GetOverrideShader(Material originalMaterial, Material overrideMaterial)
+        internal static (bool, Shader?) GetOverrideShader(Material originalMaterial, Material overrideMaterial)
         {
             if (overrideMaterial == null) return (false, null);
             if (originalMaterial == null) return (false, null);
@@ -104,7 +104,7 @@ namespace net.rs64.TexTransTool
             return (true, overrideMaterial.shader);
         }
 
-        public static (bool, int) GetOverrideRenderQueue(Material originalMaterial, Material overrideMaterial)
+        internal static (bool, int) GetOverrideRenderQueue(Material originalMaterial, Material overrideMaterial)
         {
             if (overrideMaterial == null) return (false, 0);
             if (originalMaterial == null) return (false, 0);
@@ -112,7 +112,7 @@ namespace net.rs64.TexTransTool
             return (true, overrideMaterial.renderQueue);
         }
 
-        public static IEnumerable<MaterialProperty> GetProperties(Material material)
+        internal static IEnumerable<MaterialProperty> GetProperties(Material material)
         {
             if (material == null) yield break;
 
