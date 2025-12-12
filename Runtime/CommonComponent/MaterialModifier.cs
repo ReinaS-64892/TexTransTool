@@ -79,15 +79,13 @@ namespace net.rs64.TexTransTool
             var propertyCount = shader.GetPropertyCount();
             for (var i = 0; propertyCount > i; i += 1)
             {
-                var propertyIndex = i;
-
-                if (!MaterialProperty.TryGet(overrideMaterial, propertyIndex, out var overrideProperty)) continue;
-                if (MaterialProperty.TryGet(originalMaterial, propertyIndex, out var originalProperty))
+                if (!MaterialProperty.TryGet(overrideMaterial, i, out var overrideProperty)) continue;
+                // 同一名のプロパティが存在し、同値の場合無視
+                if (MaterialProperty.TryGet(originalMaterial, overrideProperty.PropertyName, out var originalProperty))
                 {
                     // 元のマテリアルから値を転送したりすると編集せずともなんか浮動小数点誤差が生じてfalseを返すっぽい？ので厳密な比較を行わない
                     if (overrideProperty.Equals(originalProperty, false))
                     {
-                        // 元のマテリアルから取得できてかつ同値なプロパティは無視
                         continue;
                     }
                 }
