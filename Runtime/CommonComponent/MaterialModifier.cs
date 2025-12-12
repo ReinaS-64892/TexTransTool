@@ -52,7 +52,18 @@ namespace net.rs64.TexTransTool
                     TTLog.Info("MaterialModifier:info:NullShader");
                 }
                 else {
+                    // Material.shaderを変更するとMaterial.renderQueueが変更先のShader.renderQueueに自動で置き換わる仕様がある
+                    // ここではShaderのみを変更するため、シェーダー変更前のRenderQueueを保存しておき、変更後に元に戻す
+                    // 参考
+                    // https://github.com/lilxyzw/lilToon/blob/56d5095b02e795bc60b5f80f72558d7835c5c14e/Assets/lilToon/Editor/lilMaterialUtils.cs#L21
+                    // https://github.com/lilxyzw/lilToon/blob/56d5095b02e795bc60b5f80f72558d7835c5c14e/Assets/lilToon/Editor/lilMaterialUtils.cs#L266
+
+                    // 正しく処理をするならMaterial.renderQueueではなく、SerializedObjectからm_CustomRenderQueueを読み取る必要がある？
+                    // https://github.com/lilxyzw/lilToon/blob/56d5095b02e795bc60b5f80f72558d7835c5c14e/Assets/lilToon/Editor/lilMaterialUtils.cs#L711-L715
+
+                    var savedRenderQueue = editableMat.renderQueue;
                     editableMat.shader = overrideShader;
+                    editableMat.renderQueue = savedRenderQueue;
                 }
             }
 
