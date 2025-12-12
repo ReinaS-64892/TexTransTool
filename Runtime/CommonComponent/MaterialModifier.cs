@@ -72,9 +72,6 @@ namespace net.rs64.TexTransTool
 
         internal static IEnumerable<MaterialProperty> GetOverrideProperties(Material originalMaterial, Material overrideMaterial)
         {
-            if (overrideMaterial == null) yield break;
-            if (originalMaterial == null) yield break;
-
             var shader = overrideMaterial.shader;
             var propertyCount = shader.GetPropertyCount();
             for (var i = 0; propertyCount > i; i += 1)
@@ -96,16 +93,12 @@ namespace net.rs64.TexTransTool
 
         internal static (bool, Shader?) GetOverrideShader(Material originalMaterial, Material overrideMaterial)
         {
-            if (overrideMaterial == null) return (false, null);
-            if (originalMaterial == null) return (false, null);
             if (originalMaterial.shader == overrideMaterial.shader) return (false, null);
             return (true, overrideMaterial.shader);
         }
 
         internal static (bool, int) GetOverrideRenderQueue(Material originalMaterial, Material overrideMaterial)
         {
-            if (overrideMaterial == null) return (false, 0);
-            if (originalMaterial == null) return (false, 0);
             if (originalMaterial.renderQueue == overrideMaterial.renderQueue) return (false, 0);
             return (true, overrideMaterial.renderQueue);
         }

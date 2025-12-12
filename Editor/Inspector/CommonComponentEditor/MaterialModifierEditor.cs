@@ -1,3 +1,5 @@
+#nullable enable
+
 using System;
 using System.Linq;
 using System.Collections.Generic;
@@ -11,24 +13,24 @@ namespace net.rs64.TexTransTool.Editor
     [CustomEditor(typeof(MaterialModifier))]
     internal class MaterialModifierEditor : TexTransMonoBaseEditor
     {
-        private MaterialModifier _target;
-        private SerializedProperty _targetMaterial;
-        private SerializedProperty _isOverrideShader;
-        private SerializedProperty _overrideShader;
-        private SerializedProperty _overrideProperties;
-        private SerializedProperty _isOverrideRenderQueue;
-        private SerializedProperty _overrideRenderQueue;
+        private MaterialModifier _target = null!;
+        private SerializedProperty _targetMaterial = null!;
+        private SerializedProperty _isOverrideShader = null!;
+        private SerializedProperty _overrideShader = null!;
+        private SerializedProperty _overrideProperties = null!;
+        private SerializedProperty _isOverrideRenderQueue = null!;
+        private SerializedProperty _overrideRenderQueue = null!;
 
         // recoding UI fields
-        private Material _recordingMaterial;
-        private CustomMaterialEditor _materialEditor;
+        private Material _recordingMaterial = null!;
+        private CustomMaterialEditor _materialEditor = null!;
 
-        private bool _showOverrides;
+        private bool _showOverrides = false;
 
 
         private void OnEnable()
         {
-            _target = target as MaterialModifier;
+            _target = (MaterialModifier)target;
             _targetMaterial = serializedObject.FindProperty(nameof(MaterialModifier.TargetMaterial));
             _isOverrideShader = serializedObject.FindProperty(nameof(MaterialModifier.IsOverrideShader));
             _overrideShader = serializedObject.FindProperty(nameof(MaterialModifier.OverrideShader));
@@ -40,7 +42,7 @@ namespace net.rs64.TexTransTool.Editor
             _recordingMaterial.name = "Modified Material";
             if (_target.TargetMaterial != null) { UpdateRecordingMaterial(); }
 
-            _materialEditor = CreateEditor(_recordingMaterial, typeof(CustomMaterialEditor)) as CustomMaterialEditor;
+            _materialEditor = (CustomMaterialEditor)CreateEditor(_recordingMaterial, typeof(CustomMaterialEditor));
             // 大体のイベントはObjectChangeEventsから受け取り、_recordingMaterialを更新する
             // MaterialEditorのHeaderからShaderを変更されるイベントはObjectChangeEventsから取得できないのでMaterialEditorから受け取る
             _materialEditor.OnShaderChangedPublic += OnShaderChanged;
@@ -49,9 +51,13 @@ namespace net.rs64.TexTransTool.Editor
 
         private void OnDisable()
         {
-            if (_recordingMaterial != null) { DestroyImmediate(_recordingMaterial); }
-            if (_materialEditor != null) { DestroyImmediate(_materialEditor); }
-            _materialEditor.OnShaderChangedPublic -= OnShaderChanged;
+            if (_recordingMaterial != null) {
+                DestroyImmediate(_recordingMaterial);
+            }
+            if (_materialEditor != null) {
+                _materialEditor.OnShaderChangedPublic -= OnShaderChanged;
+                DestroyImmediate(_materialEditor);
+            }
             ObjectChangeEvents.changesPublished -= OnObjectChanged;
         }
         protected override void OnTexTransComponentInspectorGUI()
@@ -93,12 +99,12 @@ namespace net.rs64.TexTransTool.Editor
         }
 
         // use OverrideUtility fields
-        private bool _showOverrideUtility;
-        private Texture _sourceTexture;
-        private Texture _destinationTexture;
-        private Material _originalMaterial;
-        private Material _overrideMaterial;
-        private Material _variantMaterial;
+        private bool _showOverrideUtility = false;
+        private Texture? _sourceTexture = null;
+        private Texture? _destinationTexture = null;
+        private Material? _originalMaterial = null;
+        private Material? _overrideMaterial = null;
+        private Material? _variantMaterial = null;
         private void OverrideUtilityGUI()
         {
             _showOverrideUtility = EditorGUILayout.Foldout(_showOverrideUtility, $"Utility", false);
@@ -177,6 +183,7 @@ namespace net.rs64.TexTransTool.Editor
         private void ApplyOverridesToComponent()
         {
             var targetMaterial = _targetMaterial.objectReferenceValue as Material;
+            if (targetMaterial == null) { return; }
             ApplyOverridesToComponent(targetMaterial, _recordingMaterial);
         }
 
@@ -192,7 +199,7 @@ namespace net.rs64.TexTransTool.Editor
             ApplyPropertyOverridesToComponent(overrideProperties);
         }
 
-        private void ApplyShaderOverrideToComponent(bool isOverrideShader, Shader overrideShader)
+        private void ApplyShaderOverrideToComponent(bool isOverrideShader, Shader? overrideShader)
         {
             _isOverrideShader.boolValue = isOverrideShader;
             if (isOverrideShader) { _overrideShader.objectReferenceValue = overrideShader; }
@@ -334,7 +341,7 @@ namespace net.rs64.TexTransTool.Editor
     // OnShaderChangedがprotectedなのでラップする
     internal class CustomMaterialEditor : MaterialEditor
     {
-        public event Action OnShaderChangedPublic;
+        public event Action? OnShaderChangedPublic;
 
         protected override void OnShaderChanged()
         {
