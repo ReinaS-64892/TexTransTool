@@ -39,35 +39,52 @@ namespace net.rs64.TexTransTool
             }
         }
 
-
         internal static void ConfigureMaterial(Material editableMat, MaterialModifier config)
         {
             ConfigureMaterial(editableMat, config.IsOverrideShader, config.OverrideShader, config.IsOverrideRenderQueue, config.OverrideRenderQueue, config.OverrideProperties);
         }
 
         internal static void ConfigureMaterial(Material editableMat, bool isOverrideShader, Shader? overrideShader, bool isOverrideRenderQueue, int overrideRenderQueue, IEnumerable<MaterialProperty> overrideProperties)
-        {
+        {   
             if (isOverrideShader)
             {
-                if (overrideShader == null) { TTLog.Info("MaterialModifier:info:NullShader"); }
-                else { editableMat.shader = overrideShader; }
+                if (overrideShader == null) {
+                    TTLog.Info("MaterialModifier:info:NullShader");
+                }
+                else {
+                    editableMat.shader = overrideShader;
+                }
             }
+
             if (isOverrideRenderQueue)
             {
                 editableMat.renderQueue = overrideRenderQueue;
             }
+            
             foreach (var overrideProperty in overrideProperties)
             {
                 overrideProperty.TrySet(editableMat);
             }
         }
 
-        internal static void GetAllOverridesAndApply(Material originalMaterial, Material overrideMaterial, Material editableTargetMaterial)
+        internal static void ApplyMaterialDiff(Material originalMaterial, Material overrideMaterial, Material editableTargetMaterial)
         {
             var (isOverideShader, overrideShader) = GetOverrideShader(originalMaterial, overrideMaterial);
             var (isOverrideRenderQueue, overrideRenderQueue) = GetOverrideRenderQueue(originalMaterial, overrideMaterial);
             var overrideProperties = GetOverrideProperties(originalMaterial, overrideMaterial).ToList();
             ConfigureMaterial(editableTargetMaterial, isOverideShader, overrideShader, isOverrideRenderQueue, overrideRenderQueue, overrideProperties);
+        }
+
+        internal static (bool, Shader?) GetOverrideShader(Material originalMaterial, Material overrideMaterial)
+        {
+            if (originalMaterial.shader == overrideMaterial.shader) return (false, null);
+            return (true, overrideMaterial.shader);
+        }
+
+        internal static (bool, int) GetOverrideRenderQueue(Material originalMaterial, Material overrideMaterial)
+        {
+            if (originalMaterial.renderQueue == overrideMaterial.renderQueue) return (false, 0);
+            return (true, overrideMaterial.renderQueue);
         }
 
         internal static IEnumerable<MaterialProperty> GetOverrideProperties(Material originalMaterial, Material overrideMaterial)
@@ -86,34 +103,6 @@ namespace net.rs64.TexTransTool
                         continue;
                     }
                 }
-
-                yield return overrideProperty;
-            }
-        }
-
-        internal static (bool, Shader?) GetOverrideShader(Material originalMaterial, Material overrideMaterial)
-        {
-            if (originalMaterial.shader == overrideMaterial.shader) return (false, null);
-            return (true, overrideMaterial.shader);
-        }
-
-        internal static (bool, int) GetOverrideRenderQueue(Material originalMaterial, Material overrideMaterial)
-        {
-            if (originalMaterial.renderQueue == overrideMaterial.renderQueue) return (false, 0);
-            return (true, overrideMaterial.renderQueue);
-        }
-
-        internal static IEnumerable<MaterialProperty> GetProperties(Material material)
-        {
-            if (material == null) yield break;
-
-            var shader = material.shader;
-            var propertyCount = shader.GetPropertyCount();
-            for (var i = 0; propertyCount > i; i += 1)
-            {
-                var propertyIndex = i;
-
-                if (!MaterialProperty.TryGet(material, propertyIndex, out var overrideProperty)) continue;
 
                 yield return overrideProperty;
             }

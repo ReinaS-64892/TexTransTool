@@ -1,6 +1,5 @@
 #nullable enable
 
-using System;
 using System.Linq;
 using System.Collections.Generic;
 using UnityEditor;
@@ -24,9 +23,6 @@ namespace net.rs64.TexTransTool.Editor
         private Material _recordingMaterial = null!;
         private MaterialEditor _materialEditor = null!;
 
-        private bool _showOverrides = false;
-
-
         private void OnEnable()
         {
             _targetMaterial = serializedObject.FindProperty(nameof(MaterialModifier.TargetMaterial));
@@ -36,24 +32,20 @@ namespace net.rs64.TexTransTool.Editor
             _isOverrideRenderQueue = serializedObject.FindProperty(nameof(MaterialModifier.IsOverrideRenderQueue));
             _overrideRenderQueue = serializedObject.FindProperty(nameof(MaterialModifier.OverrideRenderQueue));
 
-            _recordingMaterial = new Material(Shader.Find("Standard"));
-            _recordingMaterial.name = "Modified Material";
-            if (_targetMaterial.objectReferenceValue != null) { UpdateRecordingMaterial(); }
-
+            _recordingMaterial = new Material(Shader.Find("Standard")) { name = "Modified Material" };
+            if (_targetMaterial.objectReferenceValue != null) { RebuildRecordingMaterialFromComponent(); }
             _materialEditor = (MaterialEditor)CreateEditor(_recordingMaterial, typeof(MaterialEditor));
+
             ObjectChangeEvents.changesPublished += OnObjectChanged;
         }
 
         private void OnDisable()
         {
-            if (_recordingMaterial != null) {
-                DestroyImmediate(_recordingMaterial);
-            }
-            if (_materialEditor != null) {
-                DestroyImmediate(_materialEditor);
-            }
+            if (_recordingMaterial != null) { DestroyImmediate(_recordingMaterial); }
+            if (_materialEditor != null) { DestroyImmediate(_materialEditor); }
             ObjectChangeEvents.changesPublished -= OnObjectChanged;
         }
+
         protected override void OnTexTransComponentInspectorGUI()
         {
             EditorGUILayout.PropertyField(_targetMaterial);
@@ -70,6 +62,7 @@ namespace net.rs64.TexTransTool.Editor
             }
         }
 
+        private bool _showOverrides = false;
         private void OverridesGUI()
         {
             var count = (_isOverrideShader.boolValue ? 1 : 0) + (_isOverrideRenderQueue.boolValue ? 1 : 0) + _overrideProperties.arraySize;
@@ -140,7 +133,7 @@ namespace net.rs64.TexTransTool.Editor
                 if (_sourceTexture == null || _destinationTexture == null) { TTLog.Info("MaterialModifier:info:TargetNotSet"); return; }
 
                 _recordingMaterial.ReplaceTexture(_destinationTexture, _sourceTexture);
-                ApplyOverridesToComponent();
+                ApplyRecordingMaterialDiffToComponent();
 
                 _sourceTexture = null;
                 _destinationTexture = null;
@@ -150,8 +143,8 @@ namespace net.rs64.TexTransTool.Editor
             {
                 if (_originalMaterial == null || _overrideMaterial == null) { TTLog.Info("MaterialModifier:info:TargetNotSet"); return; }
 
-                MaterialModifier.GetAllOverridesAndApply(_originalMaterial, _overrideMaterial, _recordingMaterial);
-                ApplyOverridesToComponent();
+                MaterialModifier.ApplyMaterialDiff(_originalMaterial, _overrideMaterial, _recordingMaterial);
+                ApplyRecordingMaterialDiffToComponent();
 
                 _originalMaterial = null;
                 _overrideMaterial = null;
@@ -163,20 +156,20 @@ namespace net.rs64.TexTransTool.Editor
 
                 var overrideProperties = GetVariantOverrideProperties(_variantMaterial).ToList();
                 MaterialModifier.ConfigureMaterial(_recordingMaterial, false, null, false, 0, overrideProperties);
-                ApplyOverridesToComponent();
+                ApplyRecordingMaterialDiffToComponent();
 
                 _variantMaterial = null;
             }
         }
 
-        private void ApplyOverridesToComponent()
+        private void ApplyRecordingMaterialDiffToComponent()
         {
             var targetMaterial = _targetMaterial.objectReferenceValue as Material;
             if (targetMaterial == null) { return; }
-            ApplyOverridesToComponent(targetMaterial, _recordingMaterial);
+            ApplyMaterialDiffToComponent(targetMaterial, _recordingMaterial);
         }
 
-        private void ApplyOverridesToComponent(Material originalMaterial, Material overrideMaterial)
+        private void ApplyMaterialDiffToComponent(Material originalMaterial, Material overrideMaterial)
         {
             var (isOverideShader, overrideShader) = MaterialModifier.GetOverrideShader(originalMaterial, overrideMaterial);
             ApplyShaderOverrideToComponent(isOverideShader, overrideShader);
@@ -273,11 +266,11 @@ namespace net.rs64.TexTransTool.Editor
             }
         }
 
-        private void UpdateRecordingMaterial()
+        private void RebuildRecordingMaterialFromComponent()
         {
             var targetMaterial = _targetMaterial.objectReferenceValue as Material;
             if (targetMaterial == null || _recordingMaterial == null) return;
-            MaterialModifier.GetAllOverridesAndApply(_recordingMaterial, targetMaterial, _recordingMaterial);
+            MaterialModifier.ApplyMaterialDiff(_recordingMaterial, targetMaterial, _recordingMaterial); // 初期化
             MaterialModifier.ConfigureMaterial(_recordingMaterial, (MaterialModifier)target);
         }
 
@@ -298,7 +291,7 @@ namespace net.rs64.TexTransTool.Editor
                     stream.GetChangeGameObjectOrComponentPropertiesEvent(i, out var data);
                     if (data.instanceId == componentId)
                     {
-                        UpdateRecordingMaterial();
+                        RebuildRecordingMaterialFromComponent();
                         return;
                     }
                 }
@@ -307,8 +300,8 @@ namespace net.rs64.TexTransTool.Editor
                     stream.GetChangeAssetObjectPropertiesEvent(i, out var data);
                     if (data.instanceId == recordingMaterialId)
                     {
-                        ApplyOverridesToComponent();
-                        // この変更でChangeGameObjectOrComponentProperties経由でUpdateRecordingMaterialが次フレームで呼ばれるが無害なので放置
+                        ApplyRecordingMaterialDiffToComponent();
+                        // この変更でChangeGameObjectOrComponentProperties経由でRebuildRecordingMaterialFromComponentが次フレームで呼ばれるが無害なので放置
                         serializedObject.ApplyModifiedProperties();
                         return;
                     }
