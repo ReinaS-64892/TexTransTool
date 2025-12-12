@@ -271,6 +271,7 @@ namespace net.rs64.TexTransTool.Editor
             var targetMaterial = _targetMaterial.objectReferenceValue as Material;
             if (targetMaterial == null || _recordingMaterial == null) return;
             MaterialModifier.ApplyMaterialDiff(_recordingMaterial, targetMaterial, _recordingMaterial); // 初期化
+            serializedObject.ApplyModifiedProperties();
             MaterialModifier.ConfigureMaterial(_recordingMaterial, (MaterialModifier)target);
         }
 
