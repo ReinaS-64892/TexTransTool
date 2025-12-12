@@ -13,7 +13,6 @@ namespace net.rs64.TexTransTool.Editor
     [CustomEditor(typeof(MaterialModifier))]
     internal class MaterialModifierEditor : TexTransMonoBaseEditor
     {
-        private MaterialModifier _target = null!;
         private SerializedProperty _targetMaterial = null!;
         private SerializedProperty _isOverrideShader = null!;
         private SerializedProperty _overrideShader = null!;
@@ -30,7 +29,6 @@ namespace net.rs64.TexTransTool.Editor
 
         private void OnEnable()
         {
-            _target = (MaterialModifier)target;
             _targetMaterial = serializedObject.FindProperty(nameof(MaterialModifier.TargetMaterial));
             _isOverrideShader = serializedObject.FindProperty(nameof(MaterialModifier.IsOverrideShader));
             _overrideShader = serializedObject.FindProperty(nameof(MaterialModifier.OverrideShader));
@@ -40,7 +38,7 @@ namespace net.rs64.TexTransTool.Editor
 
             _recordingMaterial = new Material(Shader.Find("Standard"));
             _recordingMaterial.name = "Modified Material";
-            if (_target.TargetMaterial != null) { UpdateRecordingMaterial(); }
+            if (_targetMaterial.objectReferenceValue != null) { UpdateRecordingMaterial(); }
 
             _materialEditor = (MaterialEditor)CreateEditor(_recordingMaterial, typeof(MaterialEditor));
             ObjectChangeEvents.changesPublished += OnObjectChanged;
@@ -115,7 +113,7 @@ namespace net.rs64.TexTransTool.Editor
                 EditorGUILayout.Space();
 
                 EditorGUILayout.LabelField("Get Material Diff", EditorStyles.boldLabel);
-                _originalMaterial ??= _target.TargetMaterial;
+                _originalMaterial ??= _targetMaterial.objectReferenceValue as Material;
                 _originalMaterial = EditorGUILayout.ObjectField("Original Material", _originalMaterial, typeof(Material), false) as Material;
                 _overrideMaterial = EditorGUILayout.ObjectField("Override Material", _overrideMaterial, typeof(Material), false) as Material;
                 if (GUILayout.Button("Add diff to this component"))
@@ -277,9 +275,10 @@ namespace net.rs64.TexTransTool.Editor
 
         private void UpdateRecordingMaterial()
         {
-            if (_target.TargetMaterial == null || _recordingMaterial == null) return;
-            MaterialModifier.GetAllOverridesAndApply(_recordingMaterial, _target.TargetMaterial, _recordingMaterial);
-            MaterialModifier.ConfigureMaterial(_recordingMaterial, _target);
+            var targetMaterial = _targetMaterial.objectReferenceValue as Material;
+            if (targetMaterial == null || _recordingMaterial == null) return;
+            MaterialModifier.GetAllOverridesAndApply(_recordingMaterial, targetMaterial, _recordingMaterial);
+            MaterialModifier.ConfigureMaterial(_recordingMaterial, (MaterialModifier)target);
         }
 
         // Recording Material <=> Component Propertiesの双方向の変更は全てObjectChangeEvents経由で行う
