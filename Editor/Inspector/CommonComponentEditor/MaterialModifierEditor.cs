@@ -43,8 +43,6 @@ namespace net.rs64.TexTransTool.Editor
             if (_target.TargetMaterial != null) { UpdateRecordingMaterial(); }
 
             _materialEditor = (MaterialEditor)CreateEditor(_recordingMaterial, typeof(MaterialEditor));
-            // 大体のイベントはObjectChangeEventsから受け取り、_recordingMaterialを更新する
-            // MaterialEditorのHeaderからShaderを変更されるイベントはObjectChangeEventsから取得できないのでMaterialEditorから受け取る
             ObjectChangeEvents.changesPublished += OnObjectChanged;
         }
 
@@ -284,13 +282,9 @@ namespace net.rs64.TexTransTool.Editor
             MaterialModifier.ConfigureMaterial(_recordingMaterial, _target);
         }
 
-        // 以下のEventによるプロパティの変更からUpdateRecordingMaterialを呼ぶ
-        // ・Inspector上からの操作
-        // ・Undo/Redo
-        // ・Prefab Revert/Apply
-        // 他のイベントも混じるが重複実行は問題ないのと、CustomEditorが起動しているときのみ1フレームあたり一回の呼び出しなので多分大丈夫
-        // Prefab Revert/ApplyのEventを受け取るのが主な意図
-        // PrefabUtility.prefabInstanceUpdatedはPrefabIntanceのEventしか取得できないのと、ApplyAllなどに反応しないっぽい？
+        // Recording Material <=> Component Propertiesの双方向の変更は全てObjectChangeEvents経由で行う
+        // UndoやPrefab経由のComponent Propertiesの変更を拾うため。
+        // Recording Materialの変更もShader含めChangeAssetObjectPropertiesで取得できる
         private void OnObjectChanged(ref ObjectChangeEventStream stream)
         {
             var componentId = target.GetInstanceID();
@@ -315,6 +309,7 @@ namespace net.rs64.TexTransTool.Editor
                     if (data.instanceId == recordingMaterialId)
                     {
                         ApplyOverridesToComponent();
+                        // この変更でChangeGameObjectOrComponentProperties経由でUpdateRecordingMaterialが次フレームで呼ばれるが無害なので放置
                         serializedObject.ApplyModifiedProperties();
                         return;
                     }
