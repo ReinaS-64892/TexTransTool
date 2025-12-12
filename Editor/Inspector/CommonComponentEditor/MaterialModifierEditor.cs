@@ -74,10 +74,6 @@ namespace net.rs64.TexTransTool.Editor
                 using var materialEditorChange = new EditorGUI.ChangeCheckScope();
                 _materialEditor.DrawHeader();
                 _materialEditor.OnInspectorGUI();
-                if (materialEditorChange.changed)
-                {
-                    ApplyOverridesToComponent();
-                }
             }
         }
 
@@ -300,21 +296,33 @@ namespace net.rs64.TexTransTool.Editor
         // PrefabUtility.prefabInstanceUpdatedはPrefabIntanceのEventしか取得できないのと、ApplyAllなどに反応しないっぽい？
         private void OnObjectChanged(ref ObjectChangeEventStream stream)
         {
+            var componentId = target.GetInstanceID();
+            var recordingMaterialId = _recordingMaterial.GetInstanceID();
+            
             for (int i = 0; i < stream.length; i++)
             {
                 var eventType = stream.GetEventType(i);
-                if (eventType == ObjectChangeKind.ChangeGameObjectOrComponentProperties || eventType == ObjectChangeKind.UpdatePrefabInstances || eventType == ObjectChangeKind.ChangeAssetObjectProperties)
+                
+                if (eventType == ObjectChangeKind.ChangeGameObjectOrComponentProperties)
                 {
-                    UpdateRecordingMaterial();
-                    return;
+                    stream.GetChangeGameObjectOrComponentPropertiesEvent(i, out var data);
+                    if (data.instanceId == componentId)
+                    {
+                        UpdateRecordingMaterial();
+                        return;
+                    }
+                }
+                if (eventType == ObjectChangeKind.ChangeAssetObjectProperties)
+                {
+                    stream.GetChangeAssetObjectPropertiesEvent(i, out var data);
+                    if (data.instanceId == recordingMaterialId)
+                    {
+                        ApplyOverridesToComponent();
+                        serializedObject.ApplyModifiedProperties();
+                        return;
+                    }
                 }
             }
-        }
-
-        private void OnShaderChanged()
-        {
-            ApplyOverridesToComponent();
-            serializedObject.ApplyModifiedProperties();
         }
 
         private static IEnumerable<MaterialProperty> GetVariantOverrideProperties(Material variant)
