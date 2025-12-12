@@ -23,7 +23,7 @@ namespace net.rs64.TexTransTool.Editor
 
         // recoding UI fields
         private Material _recordingMaterial = null!;
-        private CustomMaterialEditor _materialEditor = null!;
+        private MaterialEditor _materialEditor = null!;
 
         private bool _showOverrides = false;
 
@@ -42,10 +42,9 @@ namespace net.rs64.TexTransTool.Editor
             _recordingMaterial.name = "Modified Material";
             if (_target.TargetMaterial != null) { UpdateRecordingMaterial(); }
 
-            _materialEditor = (CustomMaterialEditor)CreateEditor(_recordingMaterial, typeof(CustomMaterialEditor));
+            _materialEditor = (MaterialEditor)CreateEditor(_recordingMaterial, typeof(MaterialEditor));
             // 大体のイベントはObjectChangeEventsから受け取り、_recordingMaterialを更新する
             // MaterialEditorのHeaderからShaderを変更されるイベントはObjectChangeEventsから取得できないのでMaterialEditorから受け取る
-            _materialEditor.OnShaderChangedPublic += OnShaderChanged;
             ObjectChangeEvents.changesPublished += OnObjectChanged;
         }
 
@@ -55,7 +54,6 @@ namespace net.rs64.TexTransTool.Editor
                 DestroyImmediate(_recordingMaterial);
             }
             if (_materialEditor != null) {
-                _materialEditor.OnShaderChangedPublic -= OnShaderChanged;
                 DestroyImmediate(_materialEditor);
             }
             ObjectChangeEvents.changesPublished -= OnObjectChanged;
@@ -71,7 +69,6 @@ namespace net.rs64.TexTransTool.Editor
         {
             if (_targetMaterial.objectReferenceValue != null && _materialEditor != null)
             {
-                using var materialEditorChange = new EditorGUI.ChangeCheckScope();
                 _materialEditor.DrawHeader();
                 _materialEditor.OnInspectorGUI();
             }
@@ -345,17 +342,4 @@ namespace net.rs64.TexTransTool.Editor
             }
         }
     }
-
-    // OnShaderChangedがprotectedなのでラップする
-    internal class CustomMaterialEditor : MaterialEditor
-    {
-        public event Action? OnShaderChangedPublic;
-
-        protected override void OnShaderChanged()
-        {
-            base.OnShaderChanged();
-            OnShaderChangedPublic?.Invoke();
-        }
-    }
-
 }
