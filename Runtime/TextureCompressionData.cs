@@ -54,7 +54,7 @@ namespace net.rs64.TexTransTool
                     textureFormat = TextureFormat.BC7;
                     break;
             }
-#elif UNITY_ANDROID
+#elif UNITY_ANDROID || UNITY_IOS
             switch (formatQualityValue)
             {
                 case FormatQuality.None:
