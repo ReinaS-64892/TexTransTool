@@ -14,7 +14,8 @@ namespace net.rs64.TexTransTool
         internal const string MenuPath = TextureBlender.FoldoutName + "/" + ComponentName;
         internal override TexTransPhase PhaseDefine => TexTransPhase.MaterialModification;
 
-        [AffectVRAM] public Material? TargetMaterial;
+        [AffectVRAM] [MaterialSelector] 
+        public Material? TargetMaterial;
 
         [AffectVRAM] public bool IsOverrideShader = false;
         [AffectVRAM] public Shader? OverrideShader = null;
