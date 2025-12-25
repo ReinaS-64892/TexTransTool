@@ -28,10 +28,10 @@ namespace net.rs64.TexTransTool
         {
             domain.Observe(this);
 
-            if (TargetMaterial == null) { TTLog.Info("MaterialModifier:info:TargetNotSet"); return; }
+            if (TargetMaterial == null) { TTLog.Info("MaterialModifier:info:TargetNotSet", this); return; }
 
             var mats = GetTargetMaterials(domain, TargetMaterial);
-            if (mats.Any() is false) { TTLog.Info("MaterialModifier:info:TargetNotFound"); return; }
+            if (mats.Count == 0) { TTLog.Info("MaterialModifier:info:TargetNotFound", this); return; }
 
             foreach (var mat in mats)
             {
@@ -40,30 +40,46 @@ namespace net.rs64.TexTransTool
             }
         }
 
-
-        public static void ConfigureMaterial(Material editableMat, MaterialModifier config)
+        internal static void ConfigureMaterial(Material editableMat, MaterialModifier config)
         {
             ConfigureMaterial(editableMat, config.IsOverrideShader, config.OverrideShader, config.IsOverrideRenderQueue, config.OverrideRenderQueue, config.OverrideProperties);
         }
 
-        public static void ConfigureMaterial(Material editableMat, bool isOverrideShader, Shader? overrideShader, bool isOverrideRenderQueue, int overrideRenderQueue, IEnumerable<MaterialProperty> overrideProperties)
-        {
+        internal static void ConfigureMaterial(Material editableMat, bool isOverrideShader, Shader? overrideShader, bool isOverrideRenderQueue, int overrideRenderQueue, IEnumerable<MaterialProperty> overrideProperties)
+        {   
             if (isOverrideShader)
             {
-                if (overrideShader == null) { TTLog.Info("MaterialModifier:info:NullShader"); }
-                else { editableMat.shader = overrideShader; }
+                if (overrideShader == null) {
+                    TTLog.Info("MaterialModifier:info:NullShader");
+                }
+                else {
+                    // Material.shaderを変更するとMaterial.renderQueueが変更先のShader.renderQueueに自動で置き換わる仕様がある
+                    // ここではShaderのみを変更するため、シェーダー変更前のRenderQueueを保存しておき、変更後に元に戻す
+                    // 参考
+                    // https://github.com/lilxyzw/lilToon/blob/56d5095b02e795bc60b5f80f72558d7835c5c14e/Assets/lilToon/Editor/lilMaterialUtils.cs#L21
+                    // https://github.com/lilxyzw/lilToon/blob/56d5095b02e795bc60b5f80f72558d7835c5c14e/Assets/lilToon/Editor/lilMaterialUtils.cs#L266
+
+                    // 正しく処理をするならMaterial.renderQueueではなく、SerializedObjectからm_CustomRenderQueueを読み取る必要がある？
+                    // https://github.com/lilxyzw/lilToon/blob/56d5095b02e795bc60b5f80f72558d7835c5c14e/Assets/lilToon/Editor/lilMaterialUtils.cs#L711-L715
+
+                    var savedRenderQueue = editableMat.renderQueue;
+                    editableMat.shader = overrideShader;
+                    editableMat.renderQueue = savedRenderQueue;
+                }
             }
+
             if (isOverrideRenderQueue)
             {
                 editableMat.renderQueue = overrideRenderQueue;
             }
+            
             foreach (var overrideProperty in overrideProperties)
             {
                 overrideProperty.TrySet(editableMat);
             }
         }
 
-        public static void GetAllOverridesAndApply(Material originalMaterial, Material overrideMaterial, Material editableTargetMaterial)
+        internal static void ApplyMaterialDiff(Material originalMaterial, Material overrideMaterial, Material editableTargetMaterial)
         {
             var (isOverideShader, overrideShader) = GetOverrideShader(originalMaterial, overrideMaterial);
             var (isOverrideRenderQueue, overrideRenderQueue) = GetOverrideRenderQueue(originalMaterial, overrideMaterial);
@@ -71,24 +87,31 @@ namespace net.rs64.TexTransTool
             ConfigureMaterial(editableTargetMaterial, isOverideShader, overrideShader, isOverrideRenderQueue, overrideRenderQueue, overrideProperties);
         }
 
-        public static IEnumerable<MaterialProperty> GetOverrideProperties(Material originalMaterial, Material overrideMaterial)
+        internal static (bool, Shader?) GetOverrideShader(Material originalMaterial, Material overrideMaterial)
         {
-            if (overrideMaterial == null) yield break;
-            if (originalMaterial == null) yield break;
+            if (originalMaterial.shader == overrideMaterial.shader) return (false, null);
+            return (true, overrideMaterial.shader);
+        }
 
+        internal static (bool, int) GetOverrideRenderQueue(Material originalMaterial, Material overrideMaterial)
+        {
+            if (originalMaterial.renderQueue == overrideMaterial.renderQueue) return (false, 0);
+            return (true, overrideMaterial.renderQueue);
+        }
+
+        internal static IEnumerable<MaterialProperty> GetOverrideProperties(Material originalMaterial, Material overrideMaterial)
+        {
             var shader = overrideMaterial.shader;
             var propertyCount = shader.GetPropertyCount();
             for (var i = 0; propertyCount > i; i += 1)
             {
-                var propertyIndex = i;
-
-                if (!MaterialProperty.TryGet(overrideMaterial, propertyIndex, out var overrideProperty)) continue;
-                if (MaterialProperty.TryGet(originalMaterial, propertyIndex, out var originalProperty))
+                if (!MaterialProperty.TryGet(overrideMaterial, i, out var overrideProperty)) continue;
+                // 同一名のプロパティが存在し、同値の場合無視
+                if (MaterialProperty.TryGet(originalMaterial, overrideProperty.PropertyName, out var originalProperty))
                 {
                     // 元のマテリアルから値を転送したりすると編集せずともなんか浮動小数点誤差が生じてfalseを返すっぽい？ので厳密な比較を行わない
                     if (overrideProperty.Equals(originalProperty, false))
                     {
-                        // 元のマテリアルから取得できてかつ同値なプロパティは無視
                         continue;
                     }
                 }
@@ -97,39 +120,7 @@ namespace net.rs64.TexTransTool
             }
         }
 
-        public static (bool, Shader?) GetOverrideShader(Material originalMaterial, Material overrideMaterial)
-        {
-            if (overrideMaterial == null) return (false, null);
-            if (originalMaterial == null) return (false, null);
-            if (originalMaterial.shader == overrideMaterial.shader) return (false, null);
-            return (true, overrideMaterial.shader);
-        }
-
-        public static (bool, int) GetOverrideRenderQueue(Material originalMaterial, Material overrideMaterial)
-        {
-            if (overrideMaterial == null) return (false, 0);
-            if (originalMaterial == null) return (false, 0);
-            if (originalMaterial.renderQueue == overrideMaterial.renderQueue) return (false, 0);
-            return (true, overrideMaterial.renderQueue);
-        }
-
-        public static IEnumerable<MaterialProperty> GetProperties(Material material)
-        {
-            if (material == null) yield break;
-
-            var shader = material.shader;
-            var propertyCount = shader.GetPropertyCount();
-            for (var i = 0; propertyCount > i; i += 1)
-            {
-                var propertyIndex = i;
-
-                if (!MaterialProperty.TryGet(material, propertyIndex, out var overrideProperty)) continue;
-
-                yield return overrideProperty;
-            }
-        }
-
-        private static IEnumerable<Material> GetTargetMaterials(IDomainReferenceViewer rendererTargeting, Material? target)
+        private static HashSet<Material> GetTargetMaterials(IDomainReferenceViewer rendererTargeting, Material? target)
         { return rendererTargeting.GetDomainsMaterialsHashSet(target); }
         internal override IEnumerable<Renderer> TargetRenderers(IDomainReferenceViewer rendererTargeting)
         { return rendererTargeting.RendererFilterForMaterial(rendererTargeting.ObserveToGet(this, i => i.TargetMaterial)); }
