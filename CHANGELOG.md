@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v1.0.0...HEAD)
 
+### Fixed
+
+- IOS をビルドターゲットとしたときに シンプルフォーマット 選択が行えない問題を修正 (#1082)
+- IOS をビルドターゲットとしたときに フォーマットクオリティ によるフォーマットの自動選択がすべて RGBA32 になっていた問題を修正 (#1082)
+
 ## [v1.0.0](https://github.com/ReinaS-64892/TexTransTool/compare/v0.10.10...v1.0.0) - 2025-06-22
 
 ### Added

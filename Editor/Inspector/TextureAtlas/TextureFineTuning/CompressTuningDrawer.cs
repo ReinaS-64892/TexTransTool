@@ -16,7 +16,10 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                  new TextureFormat[]{TextureFormat.BC7,TextureFormat.DXT5,TextureFormat.DXT1,TextureFormat.BC5,TextureFormat.BC4})},
             {BuildTarget.Android,
                 (new GUIContent[]{new("RGBA-ASTC_4x4"),new("RGBA-ASTC_5x5"),new("RGBA-ASTC_6x6"),new("RGBA-ASTC_8x8"),new("RGBA-ASTC_10x10"),new("RGBA-ASTC_12x12")},
-                 new TextureFormat[]{TextureFormat.ASTC_4x4,TextureFormat.ASTC_5x5,TextureFormat.ASTC_6x6,TextureFormat.ASTC_8x8,TextureFormat.ASTC_10x10,TextureFormat.ASTC_12x12})}
+                 new TextureFormat[]{TextureFormat.ASTC_4x4,TextureFormat.ASTC_5x5,TextureFormat.ASTC_6x6,TextureFormat.ASTC_8x8,TextureFormat.ASTC_10x10,TextureFormat.ASTC_12x12})},
+            {BuildTarget.iOS,
+                (new GUIContent[]{new("RGBA-ASTC_4x4"),new("RGBA-ASTC_5x5"),new("RGBA-ASTC_6x6"),new("RGBA-ASTC_8x8"),new("RGBA-ASTC_10x10"),new("RGBA-ASTC_12x12")},
+                 new TextureFormat[]{TextureFormat.ASTC_4x4,TextureFormat.ASTC_5x5,TextureFormat.ASTC_6x6,TextureFormat.ASTC_8x8,TextureFormat.ASTC_10x10,TextureFormat.ASTC_12x12})},
         };
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
