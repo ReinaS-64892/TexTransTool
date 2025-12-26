@@ -7,13 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v1.0.1...HEAD)
 
-## [v1.0.1](https://github.com/ReinaS-64892/TexTransTool/compare/v1.0.0...v1.0.1) - 2025-12-26
-
-### Fixed
-
-- IOS をビルドターゲットとしたときに シンプルフォーマット 選択が行えない問題を修正 (#1082)
-- IOS をビルドターゲットとしたときに フォーマットクオリティ によるフォーマットの自動選択がすべて RGBA32 になっていた問題を修正 (#1082)
-
 ### Added
 
 - TexTransTool が NDMF によるビルドの場合に MA MaterialSwap によって追加されるマテリアルに対して ほぼすべてのコンポーネントが影響を与えられるようになりました (#1037)
@@ -32,6 +25,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Dependency
 
 - TexTransCore v0.3.x を要求するようになりました。 (#1050)
+
+## [v1.0.1](https://github.com/ReinaS-64892/TexTransTool/compare/v1.0.0...v1.0.1) - 2025-12-26
+
+### Fixed
+
+- IOS をビルドターゲットとしたときに シンプルフォーマット 選択が行えない問題を修正 (#1082)
+- IOS をビルドターゲットとしたときに フォーマットクオリティ によるフォーマットの自動選択がすべて RGBA32 になっていた問題を修正 (#1082)
 
 ## [v1.0.0](https://github.com/ReinaS-64892/TexTransTool/compare/v0.10.10...v1.0.0) - 2025-06-22
 

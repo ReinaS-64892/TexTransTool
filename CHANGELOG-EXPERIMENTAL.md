@@ -6,8 +6,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v1.0.1...HEAD)
 
-## [v1.0.1](https://github.com/ReinaS-64892/TexTransTool/compare/v1.0.0...v1.0.1) - 2025-12-26
-
 ### Added
 
 - TTT の改変系コンポーネントの動作が終わった後に、付与された GameObject を破棄させることのできる ModificationOnlyTag が追加されました (#1039)
@@ -28,6 +26,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - TTTImportedLayerMask を新規でレイヤーに割り当てることができない問題を修正しました (#1070)
 - TTT PSD Importer が subtract (除算) のインポートを行えてなかった問題を修正しました (#1078)
 - TTT MaterialModifier の UI の挙動がいくつか修正されました (#1081)
+
+## [v1.0.1](https://github.com/ReinaS-64892/TexTransTool/compare/v1.0.0...v1.0.1) - 2025-12-26
 
 ## [v1.0.0](https://github.com/ReinaS-64892/TexTransTool/compare/v0.10.10...v1.0.0) - 2025-06-22
 
