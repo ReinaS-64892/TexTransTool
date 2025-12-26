@@ -13,7 +13,7 @@ namespace net.rs64.TexTransTool.IslandSelector
         internal const string ComponentName = "TTT " + nameof(RendererIslandSelectorLink);
         internal const string MenuPath = FoldoutName + "/" + ComponentName;
 
-        internal override void LookAtCalling(ILookingObject looker) { GetIslandSelector()?.LookAtCalling(looker); }
+        internal override void LookAtCalling(IUnityObjectObserver looker) { GetIslandSelector()?.LookAtCalling(looker); }
         internal AbstractIslandSelector? GetIslandSelector() { return IslandSelectorNOT.GetFirstChilde(transform); }
         internal override BitArray IslandSelectImpl(IslandSelectorContext ctx)
         {

@@ -33,7 +33,12 @@
     {
       "name": "nadena.dev.modular-avatar",
       "expression": "1.10.0",
-      "define": "CONTAINS_MA"
+      "define": "MA_1_10_0_OR_NEWER"
+    },
+    {
+      "name": "nadena.dev.modular-avatar",
+      "expression": "1.13.0-rc.0",
+      "define": "MA_1_13_0_OR_NEWER"
     },
     {
       "name": "net.rs64.ttce-wgpu",

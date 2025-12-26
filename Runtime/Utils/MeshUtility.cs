@@ -10,16 +10,16 @@ namespace net.rs64.TexTransTool.Utils
 {
     internal static class MeshUtility
     {
-        public static void ConvertIndicesToTriangles(List<int> indices, List<TriangleIndex> triangles)
+        public static void ConvertIndicesToTriangles(List<int> indices, List<TriangleVertexIndices> triangles)
         {
             triangles.Clear();
             int count = 0;
             while (indices.Count > count)
             {
-                triangles.Add(new TriangleIndex(indices[count++], indices[count++], indices[count++]));
+                triangles.Add(new TriangleVertexIndices(indices[count++], indices[count++], indices[count++]));
             }
         }
-        public static List<TriangleIndex> GetSubMeshTriangleIndices(this Mesh mesh, int SubMesh, List<TriangleIndex> output = null)
+        public static List<TriangleVertexIndices> GetSubMeshTriangleIndices(this Mesh mesh, int SubMesh, List<TriangleVertexIndices> output = null)
         {
             var triList = ListPool<int>.Get();
             mesh.GetTriangles(triList, SubMesh);
@@ -34,12 +34,12 @@ namespace net.rs64.TexTransTool.Utils
             return mesh.HasVertexAttribute((VertexAttribute.TexCoord0 + channel));
         }
 
-        public static NativeArray<TriangleIndex> GetSubMeshTriangleIndices(Mesh.MeshData mainMesh, int subMeshIndex, Allocator allocator = Allocator.TempJob)
+        public static NativeArray<TriangleVertexIndices> GetSubMeshTriangleIndices(Mesh.MeshData mainMesh, int subMeshIndex, Allocator allocator = Allocator.TempJob)
         {
             System.Diagnostics.Debug.Assert((uint)subMeshIndex < (uint)mainMesh.subMeshCount);
             var desc = mainMesh.GetSubMesh(subMeshIndex);
             System.Diagnostics.Debug.Assert(desc.topology == MeshTopology.Triangles);
-            var triangleBuffer = new NativeArray<TriangleIndex>(desc.indexCount / 3, allocator, NativeArrayOptions.UninitializedMemory);
+            var triangleBuffer = new NativeArray<TriangleVertexIndices>(desc.indexCount / 3, allocator, NativeArrayOptions.UninitializedMemory);
             var indices = triangleBuffer.Reinterpret<int>(sizeof(int) * 3);
             mainMesh.GetIndices(indices, subMeshIndex);
             return triangleBuffer;

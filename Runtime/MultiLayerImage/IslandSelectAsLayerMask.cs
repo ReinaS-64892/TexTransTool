@@ -26,19 +26,19 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
             if (ctx.TargetContainedMaterials is null) { return new NoMask<ITexTransToolForUnity>(); }
 
-            var thisLayerMask = domain.LookAtGet(thisObj, o => getThisToLayerMask(o) as IslandSelectAsLayerMask);
+            var thisLayerMask = domain.ObserveToGet(thisObj, o => getThisToLayerMask(o) as IslandSelectAsLayerMask);
             if (thisLayerMask is null) { return new NoMask<ITexTransToolForUnity>(); }
 
-            var islandSelector = domain.LookAtGet(thisObj, o => (getThisToLayerMask(o) as IslandSelectAsLayerMask)!.IslandSelector);
+            var islandSelector = domain.ObserveToGet(thisObj, o => (getThisToLayerMask(o) as IslandSelectAsLayerMask)!.IslandSelector);
             if (islandSelector == null) { return new NoMask<ITexTransToolForUnity>(); }
             islandSelector.LookAtCalling(domain);
 
-            var padding = domain.LookAtGet(thisObj, o => (getThisToLayerMask(o) as IslandSelectAsLayerMask)!.MaskPadding);
+            var padding = domain.ObserveToGet(thisObj, o => (getThisToLayerMask(o) as IslandSelectAsLayerMask)!.MaskPadding);
 
             var mask = engine.CreateRenderTexture(ctx.CanvasSize.x, ctx.CanvasSize.y);
 
             var decalRenderTarget = domain.RendererFilterForMaterialFromDomains(ctx.TargetContainedMaterials);
-            domain.LookAt(decalRenderTarget);
+            domain.Observe(decalRenderTarget);
 
             var meshData = decalRenderTarget
                 .Where(r => r is SkinnedMeshRenderer or MeshRenderer)
@@ -48,7 +48,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
             var islandsArray = IslandSelectToPPFilter.IslandsArrayFromMeshData(meshData);
             var bitArray = islandSelector.IslandSelect(new(islandsArray.flattenIslands, islandsArray.flattenIslandDescription, domain));
-            using var islandSelectedTrianglesHolder = IslandSelectToPPFilter.IslandSelectToTriangleIndex(islandsArray.allMeshIslands, islandsArray.islandToIndex, bitArray);
+            using var islandSelectedTrianglesHolder = IslandSelectToPPFilter.IslandSelectToTriangleVertexIndices(islandsArray.allMeshIslands, islandsArray.islandToIndex, bitArray);
             var islandSelectedTriangles = islandSelectedTrianglesHolder.Ref();
 
             using var writable = TTRenderTexWithPaddingDistance.CreateFrom(engine, mask, padding);
@@ -64,7 +64,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
                         if (triangles.Length == 0) { continue; }
 
                         uvVertexBuffer ??= engine.UploadStorageBuffer<Vector2>(md.VertexUV);
-                        using var trianglesBuf = engine.UploadStorageBuffer<int>(MemoryMarshal.Cast<TriangleIndex, int>(triangles));
+                        using var trianglesBuf = engine.UploadStorageBuffer<int>(MemoryMarshal.Cast<TriangleVertexIndices, int>(triangles));
 
                         PolygonMask.Write(engine, writable, uvVertexBuffer, trianglesBuf, triangles.Length);
                     }

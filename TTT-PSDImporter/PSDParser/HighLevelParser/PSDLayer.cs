@@ -200,6 +200,8 @@ namespace net.rs64.TexTransTool.PSDParser
                     return "Color";
                 case PSDBlendMode.Luminosity:
                     return "Luminosity";
+                case PSDBlendMode.Subtract:
+                    return "Subtract";
             }
         }
     }

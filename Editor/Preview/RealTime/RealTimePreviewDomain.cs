@@ -14,12 +14,12 @@ namespace net.rs64.TexTransTool.Preview.RealTime
         HashSet<Renderer> _domainRenderers = new();
         PreviewStackManager _stackManager;
         Dictionary<Material, Material> _previewMaterialMap = new();
-        Action<TexTransRuntimeBehavior, int> _lookAtCallBack;
+        Action<TexTransBehavior, int> _lookAtCallBack;
         private UnityDiskUtil _diskUtil;
         private TTCEUnityWithTTT4Unity _ttce4U;
 
 
-        public RealTimePreviewDomain(GameObject domainRoot, Action<TexTransRuntimeBehavior, int> lookAtCallBack)
+        public RealTimePreviewDomain(GameObject domainRoot, Action<TexTransBehavior, int> lookAtCallBack)
         {
             _domainRoot = domainRoot;
             _lookAtCallBack = lookAtCallBack;
@@ -33,10 +33,10 @@ namespace net.rs64.TexTransTool.Preview.RealTime
             SwapPreviewMaterial();
         }
         int _nowPriority;
-        TexTransRuntimeBehavior? _texTransRuntimeBehavior;
+        TexTransBehavior? _texTransRuntimeBehavior;
         public GameObject DomainRoot => _domainRoot;
 
-        public void SetNowBehavior(TexTransRuntimeBehavior texTransRuntimeBehavior, int priority)
+        public void SetNowBehavior(TexTransBehavior texTransRuntimeBehavior, int priority)
         {
             _nowPriority = priority;
             _texTransRuntimeBehavior = texTransRuntimeBehavior;
@@ -128,9 +128,9 @@ namespace net.rs64.TexTransTool.Preview.RealTime
             _stackManager.ReleaseStackAll();
         }
 
-        public IEnumerable<Renderer> EnumerateRenderer() { return _domainRenderers; }
+        public IEnumerable<Renderer> EnumerateRenderers() { return _domainRenderers; }
 
-        public bool OriginEqual(UnityEngine.Object? l, UnityEngine.Object? r)
+        public bool OriginalObjectEquals(UnityEngine.Object? l, UnityEngine.Object? r)
         {
             if (l == r) { return true; }
             if (l is Material lm && r is Material rm)
@@ -142,19 +142,20 @@ namespace net.rs64.TexTransTool.Preview.RealTime
             return false;
         }
         public ITexTransToolForUnity GetTexTransCoreEngineForUnity() => _ttce4U;
-        public void RegisterReplace(UnityEngine.Object oldObject, UnityEngine.Object nowObject) { }
+        public void RegisterReplacement(UnityEngine.Object oldObject, UnityEngine.Object nowObject) { }
 
         public void ReplaceMaterials(Dictionary<Material, Material> mapping) { throw new NotImplementedException(); }
         public void SetMesh(Renderer renderer, Mesh mesh) { throw new NotImplementedException(); }
-        public void TransferAsset(UnityEngine.Object asset) { throw new NotImplementedException(); }
-        public void LookAt(UnityEngine.Object obj)
+        public void SetMaterials(Renderer renderer, Material[] materials) { throw new NotImplementedException(); }
+        public void SaveAsset(UnityEngine.Object asset) { throw new NotImplementedException(); }
+        public void Observe(UnityEngine.Object obj)
         {
             if (_texTransRuntimeBehavior is null) { Debug.Assert(_texTransRuntimeBehavior is not null); return; }
             _lookAtCallBack(_texTransRuntimeBehavior, obj.GetInstanceID());
         }
 
         public TexTransToolTextureDescriptor GetTextureDescriptor(Texture texture) { throw new NotImplementedException(); }
-        public void RegisterPostProcessingAndLazyGPUReadBack(ITTRenderTexture rt, TexTransToolTextureDescriptor textureDescriptor) { throw new NotImplementedException(); }
+        public void RegisterTextureDescription(ITTRenderTexture rt, TexTransToolTextureDescriptor textureDescriptor) { throw new NotImplementedException(); }
         DomainPreviewCtx DomainPreviewCtx = new(true);
         T? IDomainCustomContext.GetCustomContext<T>() where T : class
         {

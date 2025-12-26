@@ -20,8 +20,8 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         {
             var domain = ctx.Domain;
             var engine = ctx.Engine;
-            domain.LookAt(this);// 個別にやるべきか ... 否か ... ?
-            domain.LookAt(gameObject);
+            domain.Observe(this);// 個別にやるべきか ... 否か ... ?
+            domain.Observe(gameObject);
 
             var alphaMask = GetAlphaMaskObject(ctx);
             var alphaOperator = Clipping ? AlphaOperation.Inherit : AlphaOperation.Normal;

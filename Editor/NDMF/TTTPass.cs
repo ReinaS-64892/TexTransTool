@@ -56,6 +56,13 @@ namespace net.rs64.TexTransTool.NDMF
             if (containsOldSaveDataComponents.Length is not 0) TTTLog.Warning("Common:warning:ContainsOldSaveDataComponents", containsOldSaveDataComponents);
         }
     }
+    internal class UVDisassemblyPass : TTTPass<UVDisassemblyPass>
+    {
+        protected override void Execute(BuildContext context)
+        {
+            TTTContext(context).ApplyFor(TexTransPhase.UVDisassembly);
+        }
+    }
     internal class MaterialModificationPass : TTTPass<MaterialModificationPass>
     {
         protected override void Execute(BuildContext context)
@@ -96,6 +103,13 @@ namespace net.rs64.TexTransTool.NDMF
         protected override void Execute(BuildContext context)
         {
             TTTContext(context).ApplyFor(TexTransPhase.UnDefined);
+        }
+    }
+    internal class DoDestroyModificationOnlyTagPass : TTTPass<DoDestroyModificationOnlyTagPass>
+    {
+        protected override void Execute(BuildContext context)
+        {
+            TTTContext(context).DoDestroyModificationOnlyTag();
         }
     }
     internal class ReFindRenderersPass : TTTPass<ReFindRenderersPass>

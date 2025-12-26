@@ -17,15 +17,15 @@ namespace net.rs64.TexTransTool.Preview.RealTime
     internal class RealTimePreviewContext : ScriptableSingleton<RealTimePreviewContext>
     {
         RealTimePreviewDomain? _previewDomain = null;
-        Dictionary<TexTransRuntimeBehavior, int> _PriorityMap = new();
-        Dictionary<int, HashSet<TexTransRuntimeBehavior>> _dependencyMap = new();
-        HashSetQueue<TexTransRuntimeBehavior> _updateQueue = new();
+        Dictionary<TexTransBehavior, int> _PriorityMap = new();
+        Dictionary<int, HashSet<TexTransBehavior>> _dependencyMap = new();
+        HashSetQueue<TexTransBehavior> _updateQueue = new();
 
 
         public event Action<GameObject>? OnPreviewEnter;
         public event Action? OnPreviewExit;
 
-        public static bool IsPreviewPossibleType(TexTransRuntimeBehavior ttr)
+        public static bool IsPreviewPossibleType(TexTransBehavior ttr)
         {
             switch (ttr)
             {
@@ -62,21 +62,21 @@ namespace net.rs64.TexTransTool.Preview.RealTime
             var texTransBehaviors = AvatarBuildUtils.PhaseDictFlatten(TexTransBehaviorSearch.FindAtPhase(previewRoot)).Where(b => TexTransBehaviorSearch.CheckIsActiveBehavior(b, previewRoot));
             var priority = 0;
             foreach (var ttb in texTransBehaviors)
-            { if (ttb is TexTransRuntimeBehavior texTransRuntimeBehavior) { _PriorityMap[texTransRuntimeBehavior] = priority; priority += 1; } }
+            { if (ttb is TexTransBehavior texTransRuntimeBehavior) { _PriorityMap[texTransRuntimeBehavior] = priority; priority += 1; } }
 
 
             ObjectChangeEvents.changesPublished += ListenChangeEvent;
             EditorApplication.update += UpdatePreview;
 
-            foreach (var ttb in texTransBehaviors) { AddPreviewBehavior(ttb as TexTransRuntimeBehavior); }
+            foreach (var ttb in texTransBehaviors) { AddPreviewBehavior(ttb as TexTransBehavior); }
         }
-        void RegisterDependency(TexTransRuntimeBehavior texTransRuntimeBehavior, int dependInstanceID)
+        void RegisterDependency(TexTransBehavior texTransRuntimeBehavior, int dependInstanceID)
         {
             if (!_dependencyMap.ContainsKey(dependInstanceID)) { _dependencyMap[dependInstanceID] = new(); }
             _dependencyMap[dependInstanceID].Add(texTransRuntimeBehavior);
         }
 
-        void AddPreviewBehavior(TexTransRuntimeBehavior texTransRuntimeBehavior)
+        void AddPreviewBehavior(TexTransBehavior texTransRuntimeBehavior)
         {
             if (ContainsBehavior(texTransRuntimeBehavior)) { return; }
             if (IsPreviewPossibleType(texTransRuntimeBehavior) is false) { return; }
@@ -84,8 +84,8 @@ namespace net.rs64.TexTransTool.Preview.RealTime
             _updateQueue.Enqueue(texTransRuntimeBehavior);
         }
 
-        void UnRegisterDependency(TexTransRuntimeBehavior texTransRuntimeBehavior) { foreach (var depend in _dependencyMap) { depend.Value.Remove(texTransRuntimeBehavior); } }
-        bool ContainsBehavior(TexTransRuntimeBehavior texTransRuntimeBehavior)
+        void UnRegisterDependency(TexTransBehavior texTransRuntimeBehavior) { foreach (var depend in _dependencyMap) { depend.Value.Remove(texTransRuntimeBehavior); } }
+        bool ContainsBehavior(TexTransBehavior texTransRuntimeBehavior)
         {
             foreach (var dependKey in _dependencyMap)
             {

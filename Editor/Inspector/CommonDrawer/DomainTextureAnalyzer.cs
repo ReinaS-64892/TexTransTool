@@ -15,22 +15,27 @@ using Color = UnityEngine.Color;
 
 namespace net.rs64.TexTransTool.Editor
 {
-    internal class DomainTextureAnalyzer : EditorWindow
+    internal class DomainTextureAnalyzer : ScriptableObject, TTTMenu.ITTTMenuWindow
     {
+        [InitializeOnLoadMethod]
+        static void Registering()
+        {
+            TTTMenu.RegisterMenu(CreateInstance<DomainTextureAnalyzer>());
+        }
+        public string MenuName => "DomainTextureAnalyzer(Experimental)";
         public GameObject DomainRoot;
         public bool IncludeDisableRenderers;
-        [MenuItem("Tools/TexTransTool/DomainTextureAnalyzer (Experimental)")]
-        internal static void OpenDomainTextureAnalyzer()
+
+        public VisualElement CreateGUI()
         {
-            var selectedGameObject = Selection.activeGameObject;
-            var window = GetWindow<DomainTextureAnalyzer>();
-            window.DomainRoot = selectedGameObject;
-            window.Analyzing();
+            var ve = new VisualElement();
+            Initialize(ve);
+            return ve;
         }
         VisualElement _analyzerElementContainer;
-        public void CreateGUI()
+        public void Initialize(VisualElement rootVisualElement)
         {
-            rootVisualElement.Clear();
+            rootVisualElement.hierarchy.Clear();
             var thisSObject = new SerializedObject(this);
             thisSObject.Update();
 
@@ -46,26 +51,30 @@ namespace net.rs64.TexTransTool.Editor
             var domainRootField = new PropertyField();
             domainRootField.BindProperty(sDomainRoot);
             domainRootField.style.flexGrow = 1;
-            domainRootField.RegisterValueChangeCallback(i => Analyzing());
-            var analyzeButton = new Button(Analyzing);
+            domainRootField.RegisterValueChangeCallback(i => Analyzing(false));
+            var analyzeButton = new Button(() => Analyzing(true));
             analyzeButton.text = "Analyze!";
 
             topBar.hierarchy.Add(domainRootField);
             topBar.hierarchy.Add(analyzeButton);
-            rootVisualElement.Add(topBar);
-            rootVisualElement.Add(scrollView);
+            rootVisualElement.hierarchy.Add(topBar);
+            rootVisualElement.hierarchy.Add(scrollView);
 
         }
 
-        void Analyzing()
+        void Analyzing(bool pickSelection = false)
         {
             _analyzerElementContainer.hierarchy.Clear();
 
             if (DomainRoot == null)
             {
-                var label = new Label("please set DomainRoot!");
-                _analyzerElementContainer.hierarchy.Add(label);
-                return;
+                if (pickSelection) DomainRoot = Selection.activeGameObject;
+                if (DomainRoot == null)
+                {
+                    var label = new Label("please set DomainRoot!");
+                    _analyzerElementContainer.hierarchy.Add(label);
+                    return;
+                }
             }
 
             var domainRenderers = DomainRoot.GetComponentsInChildren<Renderer>(true);
@@ -119,7 +128,7 @@ namespace net.rs64.TexTransTool.Editor
                     {
                         if (sharedMaterials.Length <= i) { break; }
                         if (matG.Contains(sharedMaterials[i]) is false) { continue; }
-                        record.Islands.AddRange(UnityIslandUtility.UVtoIsland(MemoryMarshal.Cast<int, TriangleIndex>(mesh.GetTriangles(i).AsSpan()), mesh.uv.AsSpan()));
+                        record.Islands.AddRange(UnityIslandUtility.UVtoIsland(MemoryMarshal.Cast<int, TriangleVertexIndices>(mesh.GetTriangles(i).AsSpan()), mesh.uv.AsSpan()));
                     }
                 }
 

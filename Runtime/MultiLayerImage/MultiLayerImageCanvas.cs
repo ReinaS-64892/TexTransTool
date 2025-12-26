@@ -10,8 +10,16 @@ using UnityEngine.Serialization;
 
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
+    /*
+        IExternalToolCanBehaveAsLayer に [TexTransToolStablePublicAPI] が実装されたときこのコンポーネントは
+
+        `net.rs64.TexTransTool.MultiLayerImage.MultiLayerImageCanvas, net.rs64.tex-trans-tool.runtime`
+
+        という名前空間とアセンブリ名と名前から変更されなくなり、型名は安全に使用できます。
+    */
+
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
-    public sealed class MultiLayerImageCanvas : TexTransRuntimeBehavior
+    public sealed class MultiLayerImageCanvas : TexTransBehavior
     {
         internal const string FoldoutName = "MultiLayerImage";
         internal const string ComponentName = "TTT MultiLayerImageCanvas";
@@ -19,12 +27,13 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         internal override TexTransPhase PhaseDefine => TexTransPhase.BeforeUVModification;
 
         [FormerlySerializedAs("TextureSelector")] public TextureSelector TargetTexture = new();
+        [BlendTypeKey] public string BlendTypeKey = ITexTransToolForUnity.BL_KEY_NOT_BLEND;
 
         [SerializeField, HideInInspector] public TTTImportedCanvasDescription? tttImportedCanvasDescription;
 
         internal override void Apply(IDomain domain)
         {
-            var replaceTarget = TargetTexture.GetTextureWithLookAt(domain, this, GetTextureSelector);
+            var replaceTarget = domain.ObserveToGet(this, b => b.TargetTexture.SelectTexture);
             if (replaceTarget == null) { TTLog.Info("MultiLayerImageCanvas:info:TargetNotSet"); return; }
 
             var nowDomainsTargets = domain.GetDomainsTextures(replaceTarget).ToHashSet();
@@ -45,8 +54,8 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             using var result = EvaluateCanvas(new(domain, (canvasWidth, canvasHeigh), targetContainsMaterials));
             Profiler.EndSample();
 
-            var notBlendKey = texTransUnityCoreEngine.QueryBlendKey("NotBlend");
-            foreach (var target in nowDomainsTargets) { domain.AddTextureStack(target, result, notBlendKey); }
+            var blendKey = texTransUnityCoreEngine.QueryBlendKey(BlendTypeKey);
+            foreach (var target in nowDomainsTargets) { domain.AddTextureStack(target, result, blendKey); }
         }
 
         internal ITTRenderTexture EvaluateCanvas(GenerateLayerObjectContext ctx)
@@ -59,19 +68,19 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         }
         internal List<TexTransCore.MultiLayerImageCanvas.LayerObject<ITexTransToolForUnity>> GenerateLayerObject(GenerateLayerObjectContext ctx)
         {
-            ctx.Domain.LookAt(this);
-            ctx.Domain.LookAtChildeComponents<TexTransMonoBase>(gameObject);
+            ctx.Domain.Observe(this);
+            ctx.Domain.ObserveToChildeComponents<TexTransMonoBase>(gameObject);
             var layers = GetChileLayers();
             var list = new List<TexTransCore.MultiLayerImageCanvas.LayerObject<ITexTransToolForUnity>>(layers.Capacity);
             foreach (var l in layers) { list.Add(l.GetLayerObject(ctx)); }
             return list;
         }
 
-        internal override IEnumerable<Renderer> ModificationTargetRenderers(IRendererTargeting rendererTargeting)
+
+        internal override IEnumerable<Renderer> TargetRenderers(IDomainReferenceViewer domainView)
         {
-            return TargetTexture.ModificationTargetRenderers(rendererTargeting, this, GetTextureSelector);
+            return TextureSelector.TargetRenderers(domainView.ObserveToGet(this, b => b.TargetTexture.SelectTexture), domainView);
         }
-        TextureSelector GetTextureSelector(MultiLayerImageCanvas multiLayerImageCanvas) { return multiLayerImageCanvas.TargetTexture; }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         List<IMultiLayerImageCanvasLayer> GetChileLayers() { return GetChileLayers(transform); }

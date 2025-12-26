@@ -19,10 +19,10 @@ namespace net.rs64.TexTransTool.IslandSelector
                 public int StabilizeSaveDataVersion => TTTDataVersion_0_10_X;
                 
         public float IslandSelectorRange = 0.1f;
-        internal override void LookAtCalling(ILookingObject looker)
+        internal override void LookAtCalling(IUnityObjectObserver looker)
         {
-            looker.LookAt(transform.GetParents().Append(transform));
-            looker.LookAt(this);
+            looker.Observe(transform.GetParents().Append(transform));
+            looker.Observe(this);
         }
         internal override BitArray IslandSelectImpl(IslandSelectorContext ctx) { return RayBaseIslandSelect.PinIslandSelect(GetIslandSelectorPin(), ctx.Islands, ctx.IslandDescription); }
         internal IslandSelectorPin GetIslandSelectorPin() { return new IslandSelectorPin(new Ray(transform.position, transform.forward).ToTTCore(), transform.lossyScale.z * IslandSelectorRange); }

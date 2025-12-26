@@ -676,11 +676,195 @@ msgstr "適用対象が存在しません！"
 
 # MultiLayerImageCanvas
 
+msgid "MultiLayerImageCanvas:prop:BlendTypeKey"
+msgstr "合成モード"
+
 msgid "MultiLayerImageCanvas:info:TargetNotSet"
 msgstr "適用対象が設定されていません！"
 
 msgid "MultiLayerImageCanvas:info:TargetNotFound"
 msgstr "適用対象が存在しません！"
+
+# AbstractLayer
+
+msgid "AbstractLayer:prop:Opacity"
+msgstr "透明度"
+
+msgid "AbstractLayer:prop:Clipping"
+msgstr "クリッピング"
+
+msgid "AbstractLayer:prop:BlendTypeKey"
+msgstr "合成モード"
+
+msgid "AbstractLayer:prop:LayerMask"
+msgstr "レイヤーマスク"
+
+# LayerFolder
+
+msgid "LayerFolder:prop:PassThrough"
+msgstr "パススルー"
+
+# RasterImportedLayer
+
+msgid "RasterImportedLayer:prop:ImportedImage"
+msgstr "インポートされたテクスチャー"
+
+# RasterLayer
+
+msgid "RasterLayer:prop:RasterTexture"
+msgstr "テクスチャー"
+
+# ColorizeLayer
+
+msgid "ColorizeLayer:prop:Color"
+msgstr "色"
+
+# HSLAdjustmentLayer
+
+msgid "HSLAdjustmentLayer:prop:Hue"
+msgstr "色相"
+
+msgid "HSLAdjustmentLayer:prop:Saturation"
+msgstr "彩度"
+
+msgid "HSLAdjustmentLayer:prop:Lightness"
+msgstr "輝度"
+
+# HSVAdjustmentLayer
+
+msgid "HSVAdjustmentLayer:prop:Hue"
+msgstr "色相"
+
+msgid "HSVAdjustmentLayer:prop:Saturation"
+msgstr "彩度"
+
+msgid "HSVAdjustmentLayer:prop:Value"
+msgstr "明度"
+
+# LevelAdjustmentLayer
+
+msgid "LevelAdjustmentLayer:prop:RGB"
+msgstr "RGB"
+
+msgid "LevelAdjustmentLayer:prop:Red"
+msgstr "赤"
+
+msgid "LevelAdjustmentLayer:prop:Green"
+msgstr "緑"
+
+msgid "LevelAdjustmentLayer:prop:Blue"
+msgstr "青"
+
+msgid "LevelAdjustmentLayer:prop:InputFloor"
+msgstr "入力の下限"
+
+msgid "LevelAdjustmentLayer:prop:InputCeiling"
+msgstr "入力の上限"
+
+msgid "LevelAdjustmentLayer:prop:Gamma"
+msgstr "ガンマ値"
+
+msgid "LevelAdjustmentLayer:prop:OutputFloor"
+msgstr "出力の下限"
+
+msgid "LevelAdjustmentLayer:prop:OutputCeiling"
+msgstr "出力の上限"
+
+# PhotoshopGradationMapLayer
+
+msgid "PhotoshopGradationMapLayer:prop:IsGradientReversed"
+msgstr "グラデーションを反転する"
+
+msgid "PhotoshopGradationMapLayer:prop:IsGradientDithered"
+msgstr "グラデーションをディザリングする"
+
+msgid "PhotoshopGradationMapLayer:prop:InteropMethod"
+msgstr "グラデーション補間方式"
+
+msgid "PhotoshopGradationMapLayer:prop:Smoothens"
+msgstr "グラデーションを平滑化する"
+
+msgid "PhotoshopGradationMapLayer:prop:ColorKeys"
+msgstr "色キー"
+
+msgid "PhotoshopGradationMapLayer:prop:TransparencyKeys"
+msgstr "透明度キー"
+
+msgid "PhotoshopGradationMapLayer:prop:KeyLocation"
+msgstr "キー位置"
+
+msgid "PhotoshopGradationMapLayer:prop:MidLocation"
+msgstr "中間位置"
+
+msgid "PhotoshopGradationMapLayer:prop:Color"
+msgstr "色"
+
+msgid "PhotoshopGradationMapLayer:prop:Transparency"
+msgstr "透明度"
+
+# PhotoshopGradationMapLayer:GradientInteropMethod
+
+msgid "PhotoshopGradationMapLayer:GradientInteropMethod:Classic"
+msgstr "クラシック"
+
+msgid "PhotoshopGradationMapLayer:GradientInteropMethod:Perceptual"
+msgstr "知覚的"
+
+msgid "PhotoshopGradationMapLayer:GradientInteropMethod:Linear"
+msgstr "線形"
+
+msgid "PhotoshopGradationMapLayer:GradientInteropMethod:Smooth"
+msgstr "スムーズ"
+
+msgid "PhotoshopGradationMapLayer:GradientInteropMethod:Stripes"
+msgstr "ストライプ"
+
+# SelectiveColoringAdjustmentLayer
+
+msgid "SelectiveColoringAdjustmentLayer:label:RedsCMYK"
+msgstr "赤"
+
+msgid "SelectiveColoringAdjustmentLayer:label:YellowsCMYK"
+msgstr "黄"
+
+msgid "SelectiveColoringAdjustmentLayer:label:GreensCMYK"
+msgstr "緑"
+
+msgid "SelectiveColoringAdjustmentLayer:label:CyansCMYK"
+msgstr "シアン"
+
+msgid "SelectiveColoringAdjustmentLayer:label:BluesCMYK"
+msgstr "青"
+
+msgid "SelectiveColoringAdjustmentLayer:label:MagentasCMYK"
+msgstr "マゼンダ"
+
+msgid "SelectiveColoringAdjustmentLayer:label:WhitesCMYK"
+msgstr "白"
+
+msgid "SelectiveColoringAdjustmentLayer:label:NeutralsCMYK"
+msgstr "ニュートラル"
+
+msgid "SelectiveColoringAdjustmentLayer:label:BlacksCMYK"
+msgstr "黒"
+
+msgid "SelectiveColoringAdjustmentLayer:prop:IsAbsolute"
+msgstr "絶対値として適用する"
+
+# SolidColorLayer
+
+msgid "SolidColorLayer:prop:Color"
+msgstr "べた塗りする色"
+
+# UnityGradationMapLayer
+
+msgid "UnityGradationMapLayer:prop:Gradation"
+msgstr "グラデーション"
+
+# YAxisFixedGradientLayer
+
+msgid "YAxisFixedGradientLayer:prop:Gradient"
+msgstr "グラデーション"
 
 # NegotiateAAO
 

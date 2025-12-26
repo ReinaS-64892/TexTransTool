@@ -16,7 +16,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
     [DisallowMultipleComponent]
     [RequireComponent(typeof(ICanBehaveAsLayer))]
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
-    public class AsLayer : TexTransMonoBase, IMultiLayerImageCanvasLayer
+    public class AsLayer : TexTransAnnotation, IMultiLayerImageCanvasLayer
     {
         internal const string ComponentName = "TTT AsLayer";
         internal const string MenuPath = MultiLayerImageCanvas.FoldoutName + "/" + ComponentName;
@@ -32,8 +32,8 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         {
             var domain = ctx.Domain;
             var engine = ctx.Engine;
-            domain.LookAt(this);
-            domain.LookAt(gameObject);
+            domain.Observe(this);
+            domain.Observe(gameObject);
 
             var cdc = GetComponent<ICanBehaveAsLayer>();
 
@@ -52,7 +52,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             var engine = ctx.Engine;
 
             Func<UnityEngine.Object, ILayerMask?> getLayerMask = o => (o as AsLayer)!.LayerMask;
-            var lm = domain.LookAtGet(this, getLayerMask);
+            var lm = domain.ObserveToGet(this, getLayerMask);
 
             var innerMask = lm?.GetAlphaMaskObject(ctx, this, getLayerMask);
 

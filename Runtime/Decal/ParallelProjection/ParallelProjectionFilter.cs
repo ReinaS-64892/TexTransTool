@@ -20,7 +20,7 @@ namespace net.rs64.TexTransTool.Decal
                 var filteredBit = filteredBitJobs[i] = new JobResult<NativeArray<bool>>[md.SubMeshCount];
                 for (var s = 0; filteredBit.Length > s; s += 1)
                 {
-                    var triNa = md.TriangleIndex[s];
+                    var triNa = md.TriangleVertexIndices[s];
                     var jobResult = filteredBit[s] = TriangleFilterUtility.FilteringTriangle(triNa, ppsVertex, _filters, space._uvCalculateJobHandles[i]);
 
                     space._uvCalculateJobHandles[i] = jobResult.GetHandle;
@@ -36,35 +36,35 @@ namespace net.rs64.TexTransTool.Decal
         MeshData[] _meshData;
         // owned
         JobResult<NativeArray<bool>>[][] _filteredBitJobResults;
-        NativeArray<TriangleIndex>[][]? _filteredTriangles;
+        NativeArray<TriangleVertexIndices>[][]? _filteredTriangles;
         public JobChainedFilteredTrianglesHolder(MeshData[] meshData, JobResult<NativeArray<bool>>[][] filteredBitJobs)
         {
             _meshData = meshData;
             _filteredBitJobResults = filteredBitJobs;
         }
-        public NativeArray<TriangleIndex>[][] GetTriangles()
+        public NativeArray<TriangleVertexIndices>[][] GetTriangles()
         {
             if (_filteredTriangles is null)
             {
-                _filteredTriangles = new NativeArray<TriangleIndex>[_filteredBitJobResults.Length][];
+                _filteredTriangles = new NativeArray<TriangleVertexIndices>[_filteredBitJobResults.Length][];
                 for (var i = 0; _filteredBitJobResults.Length > i; i += 1)
                 {
                     var md = _meshData[i];
                     var bitJobResult = _filteredBitJobResults[i];
 
-                    var triangles = _filteredTriangles[i] = new NativeArray<TriangleIndex>[bitJobResult.Length];
+                    var triangles = _filteredTriangles[i] = new NativeArray<TriangleVertexIndices>[bitJobResult.Length];
                     for (var s = 0; bitJobResult.Length > s; s += 1)
                     {
-                        triangles[s] = FilteringExecute(md.TriangleIndex[s], bitJobResult[s].GetResult);
+                        triangles[s] = FilteringExecute(md.TriangleVertexIndices[s], bitJobResult[s].GetResult);
                     }
                 }
             }
             return _filteredTriangles;
         }
-        internal static NativeArray<TriangleIndex> FilteringExecute(NativeArray<TriangleIndex> triangles, NativeArray<bool> FilterBit)
+        internal static NativeArray<TriangleVertexIndices> FilteringExecute(NativeArray<TriangleVertexIndices> triangles, NativeArray<bool> FilterBit)
         {
             Profiler.BeginSample("ParallelProjectionFilter.FilteringExecute");
-            using var filteredTriFullArrayNa = new NativeArray<TriangleIndex>(FilterBit.Length, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
+            using var filteredTriFullArrayNa = new NativeArray<TriangleVertexIndices>(FilterBit.Length, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
             var filteredTriFullArray = filteredTriFullArrayNa.AsSpan();
 
             var writeCount = 0;
@@ -77,7 +77,7 @@ namespace net.rs64.TexTransTool.Decal
                 }
             }
 
-            var filtered = new NativeArray<TriangleIndex>(writeCount, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+            var filtered = new NativeArray<TriangleVertexIndices>(writeCount, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
             filteredTriFullArrayNa.GetSubArray(0, writeCount).CopyTo(filtered);
 
             Profiler.EndSample();

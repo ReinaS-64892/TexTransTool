@@ -12,11 +12,11 @@ namespace net.rs64.TexTransTool.IslandSelector
     {
         internal const string ComponentName = "TTT RendererIslandSelector";
         internal const string MenuPath = FoldoutName + "/" + ComponentName;
-        internal override void LookAtCalling(ILookingObject looker) { looker.LookAt(this); }
+        internal override void LookAtCalling(IUnityObjectObserver looker) { looker.Observe(this); }
         public List<Renderer> RendererList = new();
         internal override BitArray IslandSelectImpl(IslandSelectorContext ctx)
         {
-            OriginEqual oe = ctx.Targeting.OriginEqual;
+            UnityObjectEqualityComparison oe = ctx.Targeting.OriginalObjectEquals;
             var selectRendererHash = oe.GetDomainsRenderers(ctx.IslandDescription.Select(i => i.Renderer).Distinct(), RendererList).ToHashSet();
             var bitArray = new BitArray(ctx.Islands.Length);
 

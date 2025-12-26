@@ -14,13 +14,13 @@ using Color = UnityEngine.Color;
 namespace net.rs64.TexTransTool
 {
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
-    public sealed class ParallelProjectionWithLilToonDecal : TexTransRuntimeBehavior, IRendererTargetingAffecterWithRuntime
+    public sealed class ParallelProjectionWithLilToonDecal : TexTransBehavior//TODO : , IDomainReferenceModifier
     {
         internal const string ComponentName = "TTT ParallelProjectionWith lilToon Decal";
         internal const string MenuPath = TextureBlender.FoldoutName + "/" + ComponentName;
         internal override TexTransPhase PhaseDefine => TexTransPhase.MaterialModification;
 
-        public Material? TargetMaterial;
+        [MaterialSelector] public Material? TargetMaterial;
         [ExpandTexture2D] public Texture2D? DecalTexture;
 
         public Color Color = Color.white;
@@ -62,8 +62,8 @@ namespace net.rs64.TexTransTool
         }
         internal override void Apply(IDomain domain)
         {
-            domain.LookAt(this);
-            domain.LookAt(transform.GetParents().Append(transform));
+            domain.Observe(this);
+            domain.Observe(transform.GetParents().Append(transform));
 
             var targetDomainsMaterials = domain.GetDomainsMaterialsHashSet(TargetMaterial);
             var targetMaterialContainedRenderers = domain.RendererFilterForMaterialFromDomains(targetDomainsMaterials);
@@ -147,7 +147,7 @@ namespace net.rs64.TexTransTool
                     var writableMesh = Instantiate(domain.GetMesh(md.ReferenceRenderer)!);
                     writableMesh.SetUVs(WriteUVTarget, filteredParallelUVVertex[ri]);
                     domain.SetMesh(md.ReferenceRenderer, writableMesh);
-                    domain.TransferAsset(writableMesh);
+                    domain.SaveAsset(writableMesh);
                 }
 
 
@@ -164,8 +164,7 @@ namespace net.rs64.TexTransTool
             {
                 foreach (var imMat in targetDomainsMaterials)
                 {
-                    var mutableMat = imMat;
-                    domain.GetMutable(ref mutableMat);
+                    var mutableMat = domain.ToMutable(imMat);
                     ModificationMaterial(mutableMat);
                 }
             }
@@ -221,7 +220,7 @@ namespace net.rs64.TexTransTool
         }
 
         internal ParallelProjectionSpaceConvertor GetSpaceConverter() { return new(transform.worldToLocalMatrix); }
-        internal ITrianglesFilter<ParallelProjectionSpace, IFilteredTriangleHolder> GetTriangleFilter(IRendererTargeting targeting)
+        internal ITrianglesFilter<ParallelProjectionSpace, IFilteredTriangleHolder> GetTriangleFilter(IDomainReferenceViewer targeting)
         {
             if (IslandSelector != null) { return new IslandSelectToPPFilter(IslandSelector, GetFilter(), targeting); }
             return new ParallelProjectionFilter(GetFilter());
@@ -234,16 +233,16 @@ namespace net.rs64.TexTransTool
             };
             return filters.ToArray();
         }
-        internal override IEnumerable<Renderer> ModificationTargetRenderers(IRendererTargeting rendererTargeting)
+        internal override IEnumerable<Renderer> TargetRenderers(IDomainReferenceViewer rendererTargeting)
         {
-            return rendererTargeting.RendererFilterForMaterial(rendererTargeting.LookAtGet(this, i => i.TargetMaterial));
+            return rendererTargeting.RendererFilterForMaterial(rendererTargeting.ObserveToGet(this, i => i.TargetMaterial));
         }
 
-        void IRendererTargetingAffecterWithRuntime.AffectingRendererTargeting(IAffectingRendererTargeting rendererTargetingModification)
-        {
-            var targetDomainsMaterials = rendererTargetingModification.GetDomainsMaterialsHashSet(TargetMaterial);
-            foreach (var mutableMat in targetDomainsMaterials) { ModificationMaterial(mutableMat); }
-        }
+        // void IRendererTargetingAffecterWithRuntime.AffectingRendererTargeting(IAffectingRendererTargeting rendererTargetingModification)
+        // {
+        //     var targetDomainsMaterials = rendererTargetingModification.GetDomainsMaterialsHashSet(TargetMaterial);
+        //     foreach (var mutableMat in targetDomainsMaterials) { ModificationMaterial(mutableMat); }
+        // }
 
         static readonly Vector3[] lineList = new Vector3[]{
 
@@ -277,7 +276,7 @@ namespace net.rs64.TexTransTool
         }
         struct ParallelProjectionInCalculate : IJobParallelFor
         {
-            [ReadOnly] public NativeArray<TriangleIndex> Triangles;
+            [ReadOnly] public NativeArray<TriangleVertexIndices> Triangles;
             [WriteOnly][NativeDisableParallelForRestriction] public NativeArray<bool> IsInParallelProjection;
             public void Execute(int index)
             {

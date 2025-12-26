@@ -15,8 +15,8 @@ namespace net.rs64.TexTransTool.Editor
 #if !TTT_DISABLE_EXTERNAL_PREVIEW_DRAWER
             if (ExternalPreviewDrawer is not null) { ExternalPreviewDrawer(target); return; }
 #endif
-            if (target is TexTransRuntimeBehavior ttr && RealTimePreviewContext.IsPreviewPossibleType(ttr))
-            { DrawerRealTimePreviewEditorButton(target as TexTransRuntimeBehavior); }
+            if (target is TexTransBehavior ttr && RealTimePreviewContext.IsPreviewPossibleType(ttr))
+            { DrawerRealTimePreviewEditorButton(target as TexTransBehavior); }
             else { OneTimePreviewContext.instance.DrawApplyAndRevert(target); }
         }
 
@@ -27,7 +27,7 @@ namespace net.rs64.TexTransTool.Editor
             ExternalUnlitButton.Invoke();
         }
 
-        public static void DrawerRealTimePreviewEditorButton(TexTransRuntimeBehavior texTransRuntimeBehavior)
+        public static void DrawerRealTimePreviewEditorButton(TexTransBehavior texTransRuntimeBehavior)
         {
             if (texTransRuntimeBehavior == null) { return; }
             var rpm = RealTimePreviewContext.instance;

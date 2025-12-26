@@ -70,7 +70,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             public bool OverCrossIslandMerge = true;
         }
         public AtlasContext(
-            IRendererTargeting targeting
+            IDomainReferenceViewer targeting
             , Renderer[] targetRenderers
             , HashSet<Material> targetMaterials
             , AtlasContextOption atlasContextOption
@@ -362,7 +362,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                             //     var transTargets = atlasContext.AtlasSubSets[subSetIndex].Where(i => i.HasValue).Where(i => i.Value.MaterialGroupID == findMaterialID).Select(i => i.Value);
                             //     if (!transTargets.Any()) { continue; }
 
-                            //     var triangles = new NativeArray<TriangleIndex>(transTargets.SelectMany(subData => atlasContext.IslandDict[subData].SelectMany(i => i.triangles)).ToArray(), Allocator.TempJob);
+                            //     var triangles = new NativeArray<TriangleVertexIndices>(transTargets.SelectMany(subData => atlasContext.IslandDict[subData].SelectMany(i => i.triangles)).ToArray(), Allocator.TempJob);
                             //     var originUV = atlasContext.MeshDataDict[atlasContext.NormalizeMeshes[atlasContext.Meshes[transTargets.First().MeshID]]].VertexUV;
 
                             //     var transData = new TransData(triangles, subSetMovedUV[subSetIndex], originUV);

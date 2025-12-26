@@ -27,8 +27,6 @@ namespace net.rs64.TexTransTool
 
         public bool Equals(MaterialProperty other, bool strict = true)
         {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
             if (PropertyType != other.PropertyType) return false;
             if (PropertyName != other.PropertyName) return false;
 

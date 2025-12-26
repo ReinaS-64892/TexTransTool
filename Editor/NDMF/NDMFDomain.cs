@@ -9,7 +9,7 @@ using net.rs64.TexTransTool.NDMF.AdditionalMaterials;
 
 namespace net.rs64.TexTransTool.NDMF
 {
-    internal class NDMFDomain : AvatarDomain, IRendererTargeting
+    internal class NDMFDomain : AvatarDomain, IDomainReferenceViewer
     {
         private class NDMFAssetSaver : IAssetSaver
         {
@@ -20,7 +20,7 @@ namespace net.rs64.TexTransTool.NDMF
                 _buildContext = buildContext;
             }
 
-            public void TransferAsset(Object asset)
+            public void SaveAsset(Object asset)
             {
                 if (asset == null || AssetDatabase.Contains(asset)) return;
                 _buildContext.AssetSaver.SaveAsset(asset);
@@ -45,25 +45,25 @@ namespace net.rs64.TexTransTool.NDMF
         {
             var matHash = new HashSet<Material>();
 
-            foreach (var r in EnumerateRenderer()) { matHash.UnionWith(GetMaterials(r).UOfType<Material>());}
+            foreach (var r in EnumerateRenderers()) { matHash.UnionWith(GetMaterials(r).SkipDestroyed());}
             matHash.UnionWith(_additionalMaterialsProvider.GetReferencedMaterials());
             return matHash;
 
-            Material?[] GetMaterials(Renderer renderer) => ((IRendererTargeting)this).GetMaterials(renderer);
+            Material?[] GetMaterials(Renderer renderer) => ((IDomainReferenceViewer)this).GetMaterials(renderer);
         }
         public override void ReplaceMaterials(Dictionary<Material, Material> mapping)
         {
             base.ReplaceMaterials(mapping);
             _additionalMaterialsProvider.ReplaceReferencedMaterials(mapping);
         }
-        public override void RegisterReplace(Object oldObject, Object nowObject)
+        public override void RegisterReplacement(Object oldObject, Object nowObject)
         {
             if (_genericReplaceRegistry.ReplaceMap.TryGetValue(nowObject, out var dictOld)) { if (dictOld == oldObject) { return; } }
 
-            base.RegisterReplace(oldObject, nowObject);
+            base.RegisterReplacement(oldObject, nowObject);
             if (oldObject is not RenderTexture && nowObject is not RenderTexture) ObjectRegistry.RegisterReplacedObject(oldObject, nowObject);
         }
-        public override bool OriginEqual(Object? l, Object? r) { return ObjectRegistry.GetReference(l) == ObjectRegistry.GetReference(r); }
+        public override bool OriginalObjectEquals(Object? l, Object? r) { return ObjectRegistry.GetReference(l) == ObjectRegistry.GetReference(r); }
 
         public override bool IsActive(GameObject gameObject)
         {

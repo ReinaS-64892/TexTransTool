@@ -8,6 +8,27 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [v1.0.1](https://github.com/ReinaS-64892/TexTransTool/compare/v1.0.0...v1.0.1) - 2025-12-26
 
+### Added
+
+- TTT の改変系コンポーネントの動作が終わった後に、付与された GameObject を破棄させることのできる ModificationOnlyTag が追加されました (#1039)
+- 既にタイルアトラス化されてしまったモデルのタイルアトラス化を分解し TTT の UV 依存系の改変を可能にする TileAtlasBreaker を追加しました (#1047 #1048)
+- 対応した外部ツールを MLIC のレイヤーにすることができる ExternalToolAsLayer が追加されました (#1057)
+  - レイヤーになるための安定した API の候補となる API も追加されました (#1057)
+- フォトショップのグラデーションレイヤーを一部完全再現する PhotoshopGradationMapLayer が追加されました (#1058)
+- MultiLayerImageCanvas と レイヤー のインスペクターが日本語化されました (#1071)
+- MultiLayerImageCanvas に一部分だけ上書きなどが可能になる 合成モード が追加されました (#1079)
+- TTT MaterialModifier などのマテリアルを対象として選択する必要のあるコンポーネントにドメイン内のテクスチャを選択しやすくできるセレクターが追加されました (#1080)
+
+### Changed
+
+- MenuItem から MLIC のレイヤーとなるコンポーネントを生成するとき、生成される位置が子階層の一番最初に追加されるようになりました (#1068)
+
+### Fixed
+
+- TTTImportedLayerMask を新規でレイヤーに割り当てることができない問題を修正しました (#1070)
+- TTT PSD Importer が subtract (除算) のインポートを行えてなかった問題を修正しました (#1078)
+- TTT MaterialModifier の UI の挙動がいくつか修正されました (#1081)
+
 ## [v1.0.0](https://github.com/ReinaS-64892/TexTransTool/compare/v0.10.10...v1.0.0) - 2025-06-22
 
 ## [v0.10.10](https://github.com/ReinaS-64892/TexTransTool/compare/v0.10.9...v0.10.10) - 2025-06-20

@@ -22,7 +22,7 @@ namespace net.rs64.TexTransTool.NDMF.AdditionalMaterials
         {
             return _animatorServicesContext.AnimationIndex
                 .GetPPtrReferencedObjects
-                .UOfType<Material>()
+                .OfType<Material>()
                 .ToHashSet();
         }
 

@@ -11,11 +11,11 @@ namespace net.rs64.TexTransTool.Decal
 {
     internal struct FilterTriangleJobInput<InterSpace>
     {
-        public NativeArray<TriangleIndex> Triangle;
+        public NativeArray<TriangleVertexIndices> Triangle;
         public NativeArray<bool> FilteredBit;
         public InterSpace InternalSpace;
 
-        public FilterTriangleJobInput(NativeArray<TriangleIndex> item1, NativeArray<bool> item2, InterSpace item3)
+        public FilterTriangleJobInput(NativeArray<TriangleVertexIndices> item1, NativeArray<bool> item2, InterSpace item3)
         {
             Triangle = item1;
             FilteredBit = item2;
@@ -26,7 +26,7 @@ namespace net.rs64.TexTransTool.Decal
     public delegate JobHandle JobChain<Input>(Input input, JobHandle jobHandle);
     internal static class TriangleFilterUtility
     {
-        public static JobResult<NativeArray<bool>> FilteringTriangle<InterSpace>(NativeArray<TriangleIndex> target, InterSpace interObjects, JobChain<FilterTriangleJobInput<InterSpace>>[] filtersJobs, JobHandle jobHandle = default)
+        public static JobResult<NativeArray<bool>> FilteringTriangle<InterSpace>(NativeArray<TriangleVertexIndices> target, InterSpace interObjects, JobChain<FilterTriangleJobInput<InterSpace>>[] filtersJobs, JobHandle jobHandle = default)
         {
             Profiler.BeginSample("FilteringTriangle");
             var filteredBit = new NativeArray<bool>(target.Length, Allocator.TempJob);
@@ -46,7 +46,7 @@ namespace net.rs64.TexTransTool.Decal
         public struct SideStruct : IJobParallelFor
         {
             [ReadOnly] public bool IsReverse;
-            [ReadOnly] public NativeArray<TriangleIndex> Triangle;
+            [ReadOnly] public NativeArray<TriangleVertexIndices> Triangle;
             [ReadOnly] public NativeArray<Vector3> WorldVerticals;
             public NativeArray<bool> FilteringBit;
             public void Execute(int index)
@@ -82,7 +82,7 @@ namespace net.rs64.TexTransTool.Decal
             [ReadOnly] public float Far;
             [ReadOnly] public bool IsAllVertex;
 
-            [ReadOnly] public NativeArray<TriangleIndex> Triangle;
+            [ReadOnly] public NativeArray<TriangleVertexIndices> Triangle;
             [ReadOnly] public NativeArray<Vector3> WorldVerticals;
             public NativeArray<bool> FilteringBit;
 
@@ -119,7 +119,7 @@ namespace net.rs64.TexTransTool.Decal
             [ReadOnly] public float Near;
             [ReadOnly] public bool IsAllVertex;
 
-            [ReadOnly] public NativeArray<TriangleIndex> Triangle;
+            [ReadOnly] public NativeArray<TriangleVertexIndices> Triangle;
             [ReadOnly] public NativeArray<Vector3> WorldVerticals;
             public NativeArray<bool> FilteringBit;
 
@@ -155,7 +155,7 @@ namespace net.rs64.TexTransTool.Decal
         {
             private TexTransUnityAABB AABB;
 
-            [ReadOnly] public NativeArray<TriangleIndex> Triangle;
+            [ReadOnly] public NativeArray<TriangleVertexIndices> Triangle;
             [ReadOnly] public NativeArray<Vector3> PolygonVerticals;
             public NativeArray<bool> FilteringBit;
 
@@ -179,7 +179,7 @@ namespace net.rs64.TexTransTool.Decal
                     return job.Schedule(input.FilteredBit.Length, 32, jobHandle);
                 };
             }
-            public static bool OutOfPolygonVertexBase(TriangleIndex targetTri, NativeArray<Vector3> vertex, TexTransUnityAABB aabb)
+            public static bool OutOfPolygonVertexBase(TriangleVertexIndices targetTri, NativeArray<Vector3> vertex, TexTransUnityAABB aabb)
             {
                 var triAABB = new TexTransUnityAABB(vertex[targetTri.zero])
                 .AddVertex(vertex[targetTri.one])

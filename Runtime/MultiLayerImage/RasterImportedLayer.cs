@@ -18,8 +18,8 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             var domain = ctx.Domain;
             var engine = ctx.Engine;
 
-            domain.LookAt(this);
-            domain.LookAt(gameObject);
+            domain.Observe(this);
+            domain.Observe(gameObject);
 
             var alphaOperator = Clipping ? AlphaOperation.Inherit : AlphaOperation.Normal;
             var alphaMask = GetAlphaMaskObject(ctx);
@@ -27,7 +27,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
             if (ImportedImage == null) { return new EmptyLayer<ITexTransToolForUnity>(Visible, alphaMask, alphaOperator, Clipping, blKey); }
 
-            domain.LookAt(ImportedImage);
+            domain.Observe(ImportedImage);
             var diskTex = engine.Wrapping(ImportedImage);
             return new RasterLayer<ITexTransToolForUnity>(Visible, alphaMask, alphaOperator, Clipping, blKey, diskTex);
         }
@@ -36,30 +36,32 @@ namespace net.rs64.TexTransTool.MultiLayerImage
     public class TTTImportedLayerMask : ILayerMask
     {
         public bool LayerMaskDisabled;
-        public TTTImportedImage MaskTexture;
+        public TTTImportedImage? MaskTexture;
 
-        internal TTTImportedLayerMask(bool layerMaskDisabled, TTTImportedImage importedMask)
+        internal TTTImportedLayerMask(bool layerMaskDisabled, TTTImportedImage? importedMask)
         {
             LayerMaskDisabled = layerMaskDisabled;
             MaskTexture = importedMask;
         }
+
+        public TTTImportedLayerMask() : this(false, null) { }
 
         AlphaMask<ITexTransToolForUnity> ILayerMask.GetAlphaMaskObject(GenerateLayerObjectContext ctx, UnityEngine.Object thisObj, Func<UnityEngine.Object, ILayerMask?> getThisToLayerMask)
         {
             var domain = ctx.Domain;
             var engine = ctx.Engine;
 
-            var thisLayerMask = domain.LookAtGet(thisObj, o => getThisToLayerMask(o) as TTTImportedLayerMask);
+            var thisLayerMask = domain.ObserveToGet(thisObj, o => getThisToLayerMask(o) as TTTImportedLayerMask);
             if (thisLayerMask is null) { return new NoMask<ITexTransToolForUnity>(); }
 
-            var layerMaskDisabled = domain.LookAtGet(thisObj, o => (getThisToLayerMask(o) as TTTImportedLayerMask)!.LayerMaskDisabled);
+            var layerMaskDisabled = domain.ObserveToGet(thisObj, o => (getThisToLayerMask(o) as TTTImportedLayerMask)!.LayerMaskDisabled);
             if (layerMaskDisabled) { return new NoMask<ITexTransToolForUnity>(); }
 
-            var maskTexture = domain.LookAtGet(thisObj, o => (getThisToLayerMask(o) as TTTImportedLayerMask)!.MaskTexture);
+            var maskTexture = domain.ObserveToGet(thisObj, o => (getThisToLayerMask(o) as TTTImportedLayerMask)!.MaskTexture);
             if (maskTexture == null) { return new NoMask<ITexTransToolForUnity>(); }
 
-            domain.LookAt(maskTexture);
-            return new DiskOnlyToMask<ITexTransToolForUnity>(engine.Wrapping(maskTexture!));
+            domain.Observe(maskTexture);
+            return new DiskOnlyToMask<ITexTransToolForUnity>(engine.Wrapping(maskTexture));
         }
     }
 }

@@ -680,11 +680,195 @@ msgstr "Target not found!"
 
 # MultiLayerImageCanvas
 
+msgid "MultiLayerImageCanvas:prop:BlendTypeKey"
+msgstr "Blend Mode"
+
 msgid "MultiLayerImageCanvas:info:TargetNotSet"
 msgstr "Target not set!"
 
 msgid "MultiLayerImageCanvas:info:TargetNotFound"
 msgstr "Target not found!"
+
+# AbstractLayer
+
+msgid "AbstractLayer:prop:Opacity"
+msgstr "Opacity"
+
+msgid "AbstractLayer:prop:Clipping"
+msgstr "Clipping"
+
+msgid "AbstractLayer:prop:BlendTypeKey"
+msgstr "Blend Mode"
+
+msgid "AbstractLayer:prop:LayerMask"
+msgstr "Layer Mask"
+
+# LayerFolder
+
+msgid "LayerFolder:prop:PassThrough"
+msgstr "Pass Through"
+
+# RasterImportedLayer
+
+msgid "RasterImportedLayer:prop:ImportedImage"
+msgstr "Imported Texture"
+
+# RasterLayer
+
+msgid "RasterLayer:prop:RasterTexture"
+msgstr "Texture"
+
+# ColorizeLayer
+
+msgid "ColorizeLayer:prop:Color"
+msgstr "Color"
+
+# HSLAdjustmentLayer
+
+msgid "HSLAdjustmentLayer:prop:Hue"
+msgstr "Hue"
+
+msgid "HSLAdjustmentLayer:prop:Saturation"
+msgstr "Saturation"
+
+msgid "HSLAdjustmentLayer:prop:Lightness"
+msgstr "Lightness"
+
+# HSVAdjustmentLayer
+
+msgid "HSVAdjustmentLayer:prop:Hue"
+msgstr "Hue"
+
+msgid "HSVAdjustmentLayer:prop:Saturation"
+msgstr "Saturation"
+
+msgid "HSVAdjustmentLayer:prop:Value"
+msgstr "Value"
+
+# LevelAdjustmentLayer
+
+msgid "LevelAdjustmentLayer:prop:RGB"
+msgstr "RGB"
+
+msgid "LevelAdjustmentLayer:prop:Red"
+msgstr "Red"
+
+msgid "LevelAdjustmentLayer:prop:Green"
+msgstr "Green"
+
+msgid "LevelAdjustmentLayer:prop:Blue"
+msgstr "Blue"
+
+msgid "LevelAdjustmentLayer:prop:InputFloor"
+msgstr "Input Minimum"
+
+msgid "LevelAdjustmentLayer:prop:InputCeiling"
+msgstr "Input Maximum"
+
+msgid "LevelAdjustmentLayer:prop:Gamma"
+msgstr "Gamma"
+
+msgid "LevelAdjustmentLayer:prop:OutputFloor"
+msgstr "Output Minimum"
+
+msgid "LevelAdjustmentLayer:prop:OutputCeiling"
+msgstr "Output Maximum"
+
+# PhotoshopGradationMapLayer
+
+msgid "PhotoshopGradationMapLayer:prop:IsGradientReversed"
+msgstr "Reverse Gradient"
+
+msgid "PhotoshopGradationMapLayer:prop:IsGradientDithered"
+msgstr "Dither Gradient"
+
+msgid "PhotoshopGradationMapLayer:prop:InteropMethod"
+msgstr "Gradient Interpolation Method"
+
+msgid "PhotoshopGradationMapLayer:prop:Smoothens"
+msgstr "Smooth Gradient"
+
+msgid "PhotoshopGradationMapLayer:prop:ColorKeys"
+msgstr "Color Keys"
+
+msgid "PhotoshopGradationMapLayer:prop:TransparencyKeys"
+msgstr "Transparency Keys"
+
+msgid "PhotoshopGradationMapLayer:prop:KeyLocation"
+msgstr "Key Position"
+
+msgid "PhotoshopGradationMapLayer:prop:MidLocation"
+msgstr "Midpoint Position"
+
+msgid "PhotoshopGradationMapLayer:prop:Color"
+msgstr "Color"
+
+msgid "PhotoshopGradationMapLayer:prop:Transparency"
+msgstr "Transparency"
+
+# PhotoshopGradationMapLayer:GradientInteropMethod
+
+msgid "PhotoshopGradationMapLayer:GradientInteropMethod:Classic"
+msgstr "Classic"
+
+msgid "PhotoshopGradationMapLayer:GradientInteropMethod:Perceptual"
+msgstr "Perceptual"
+
+msgid "PhotoshopGradationMapLayer:GradientInteropMethod:Linear"
+msgstr "Linear"
+
+msgid "PhotoshopGradationMapLayer:GradientInteropMethod:Smooth"
+msgstr "Smooth"
+
+msgid "PhotoshopGradationMapLayer:GradientInteropMethod:Stripes"
+msgstr "Stripes"
+
+# SelectiveColoringAdjustmentLayer
+
+msgid "SelectiveColoringAdjustmentLayer:label:RedsCMYK"
+msgstr "Red"
+
+msgid "SelectiveColoringAdjustmentLayer:label:YellowsCMYK"
+msgstr "Yellow"
+
+msgid "SelectiveColoringAdjustmentLayer:label:GreensCMYK"
+msgstr "Green"
+
+msgid "SelectiveColoringAdjustmentLayer:label:CyansCMYK"
+msgstr "Cyan"
+
+msgid "SelectiveColoringAdjustmentLayer:label:BluesCMYK"
+msgstr "Blue"
+
+msgid "SelectiveColoringAdjustmentLayer:label:MagentasCMYK"
+msgstr "Magenta"
+
+msgid "SelectiveColoringAdjustmentLayer:label:WhitesCMYK"
+msgstr "White"
+
+msgid "SelectiveColoringAdjustmentLayer:label:NeutralsCMYK"
+msgstr "Neutral"
+
+msgid "SelectiveColoringAdjustmentLayer:label:BlacksCMYK"
+msgstr "Black"
+
+msgid "SelectiveColoringAdjustmentLayer:prop:IsAbsolute"
+msgstr "Apply as Absolute Value"
+
+# SolidColorLayer
+
+msgid "SolidColorLayer:prop:Color"
+msgstr "Fill Color"
+
+# UnityGradationMapLayer
+
+msgid "UnityGradationMapLayer:prop:Gradation"
+msgstr "Gradation"
+
+# YAxisFixedGradientLayer
+
+msgid "YAxisFixedGradientLayer:prop:Gradient"
+msgstr "Gradient"
 
 # NegotiateAAO
 

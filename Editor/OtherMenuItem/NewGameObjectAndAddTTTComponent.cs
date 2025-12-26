@@ -11,20 +11,21 @@ namespace net.rs64.TexTransTool.Editor.OtherMenuItem
 {
     internal class NewGameObjectAndAddTTTComponent
     {
-        static TTB C<TTB>() where TTB : MonoBehaviour
+        static TTB C<TTB>(bool firstSibling = false) where TTB : MonoBehaviour
         {
             var parent = Selection.activeGameObject?.transform;
             if (parent == null) return null;
-            var component = C<TTB>(parent, typeof(TTB).Name);
+            var component = C<TTB>(parent, typeof(TTB).Name, firstSibling);
             Undo.RegisterCreatedObjectUndo(component.gameObject, "Create " + typeof(TTB).Name);
             return component;
         }
 
-        static TTB C<TTB>(Transform parent, string name) where TTB : MonoBehaviour
+        static TTB C<TTB>(Transform parent, string name, bool firstSibling = false) where TTB : MonoBehaviour
         {
             var newGameObj = new GameObject(name);
             newGameObj.transform.SetParent(parent, false);
             var newComponent = newGameObj.AddComponent<TTB>();
+            if (firstSibling) newGameObj.transform.SetAsFirstSibling();
             Selection.activeGameObject = newGameObj;
             EditorGUIUtility.PingObject(newGameObj);
             return newComponent;
@@ -37,17 +38,18 @@ namespace net.rs64.TexTransTool.Editor.OtherMenuItem
         [M(BP + SimpleDecal.MenuPath)] static void SD() => C<SimpleDecal>();
 
         [M(BP + MultiLayerImageCanvas.MenuPath)] static void MLIC() => C<MultiLayerImageCanvas>();
-        [M(BP + LayerFolder.MenuPath)] static void LF() => C<LayerFolder>();
-        [M(BP + RasterLayer.MenuPath)] static void RL() => C<RasterLayer>();
-        [M(BP + RasterImportedLayer.MenuPath)] static void RIL() => C<RasterImportedLayer>();
-        [M(BP + SolidColorLayer.MenuPath)] static void SCL() => C<SolidColorLayer>();
-        [M(BP + HSLAdjustmentLayer.MenuPath)] static void HSLAL() => C<HSLAdjustmentLayer>();
-        [M(BP + HSVAdjustmentLayer.MenuPath)] static void HSVAL() => C<HSVAdjustmentLayer>();
-        [M(BP + LevelAdjustmentLayer.MenuPath)] static void LAL() => C<LevelAdjustmentLayer>();
-        [M(BP + SelectiveColoringAdjustmentLayer.MenuPath)] static void SCAL() => C<SelectiveColoringAdjustmentLayer>();
-        [M(BP + UnityGradationMapLayer.MenuPath)] static void UGML() => C<UnityGradationMapLayer>();
-        [M(BP + YAxisFixedGradientLayer.MenuPath)] static void YAFGL() => C<YAxisFixedGradientLayer>();
-        [M(BP + ColorizeLayer.MenuPath)] static void CL() => C<ColorizeLayer>();
+        [M(BP + LayerFolder.MenuPath)] static void LF() => C<LayerFolder>(true);
+        [M(BP + RasterLayer.MenuPath)] static void RL() => C<RasterLayer>(true);
+        [M(BP + RasterImportedLayer.MenuPath)] static void RIL() => C<RasterImportedLayer>(true);
+        [M(BP + SolidColorLayer.MenuPath)] static void SCL() => C<SolidColorLayer>(true);
+        [M(BP + HSLAdjustmentLayer.MenuPath)] static void HSLAL() => C<HSLAdjustmentLayer>(true);
+        [M(BP + HSVAdjustmentLayer.MenuPath)] static void HSVAL() => C<HSVAdjustmentLayer>(true);
+        [M(BP + LevelAdjustmentLayer.MenuPath)] static void LAL() => C<LevelAdjustmentLayer>(true);
+        [M(BP + SelectiveColoringAdjustmentLayer.MenuPath)] static void SCAL() => C<SelectiveColoringAdjustmentLayer>(true);
+        [M(BP + UnityGradationMapLayer.MenuPath)] static void UGML() => C<UnityGradationMapLayer>(true);
+        [M(BP + YAxisFixedGradientLayer.MenuPath)] static void YAFGL() => C<YAxisFixedGradientLayer>(true);
+        [M(BP + ColorizeLayer.MenuPath)] static void CL() => C<ColorizeLayer>(true);
+        [M(BP + PhotoshopGradationMapLayer.MenuPath)] static void PGML() => C<PhotoshopGradationMapLayer>(true);
 
         [M(BP + PhaseDefinition.PDMenuPath)] static void PD() => C<PhaseDefinition>();
 
@@ -80,6 +82,7 @@ namespace net.rs64.TexTransTool.Editor.OtherMenuItem
 
         [M(BP + NearTransTexture.MenuPath)] static void NTT() => C<NearTransTexture>();
         [M(BP + UVCopy.MenuPath)] static void UC() => C<UVCopy>();
+        [M(BP + TileAtlasBreaker.MenuPath)] static void TAB() => C<TileAtlasBreaker>();
 
 
 

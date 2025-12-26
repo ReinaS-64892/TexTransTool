@@ -9,6 +9,8 @@ using UnityEditor.AssetImporters;
 using UnityEngine;
 using UnityEngine.Profiling;
 using net.rs64.TexTransTool.PSDParser;
+using System;
+using System.Linq;
 
 namespace net.rs64.TexTransTool.PSDImporter
 {
@@ -17,7 +19,7 @@ namespace net.rs64.TexTransTool.PSDImporter
     AssemblyName: net.rs64.ttt-psd-importer.editor
     FullName: net.rs64.TexTransTool.PSDImporter.TexTransToolPSDImporter
     */
-    [ScriptedImporter(1, new string[] { "psb" }, new string[] { "psd" }, AllowCaching = true)]
+    [ScriptedImporter(2, new string[] { "psb" }, new string[] { "psd" }, AllowCaching = true)]
     public class TexTransToolPSDImporter : ScriptedImporter
     {
         public PSDImportMode ImportMode = PSDImportMode.Auto;
@@ -35,6 +37,7 @@ namespace net.rs64.TexTransTool.PSDImporter
 
             var lowPSDData = PSDLowLevelParser.Parse(psdBytes);
 
+            OutputParseError(lowPSDData);
             Profiler.EndSample();
             Profiler.BeginSample("LowLevel");
 
@@ -95,6 +98,18 @@ namespace net.rs64.TexTransTool.PSDImporter
             finally
             {
                 EditorUtility.ClearProgressBar();
+            }
+        }
+
+        private void OutputParseError(PSDLowLevelParser.PSDLowLevelData lowPSDData)
+        {
+            foreach (var LayerRecord in lowPSDData.LayerInfo.LayerRecords)
+            {
+                foreach (var error in LayerRecord.AdditionalLayerInformation.Where(a => a.ParseError is not null))
+                {
+                    Debug.LogError(LayerRecord.LayerName + ":" + error.GetType().Name);
+                    Debug.LogException(error.ParseError);
+                }
             }
         }
 

@@ -22,8 +22,11 @@ namespace net.rs64.TexTransTool.NDMF.AdditionalMaterials
             _providers = new IAdditionalMaterialsProvider[]
             {
                 new AnimatorMaterialsProvider(context),
-#if CONTAINS_MA
-                new MAMaterialsProvider(context)
+#if MA_1_10_0_OR_NEWER
+                new MAMaterialSettersProvider(context),
+#endif
+#if MA_1_13_0_OR_NEWER
+                new MAMaterialSwapsProvider(context)
 #endif
             };
         }
@@ -33,7 +36,7 @@ namespace net.rs64.TexTransTool.NDMF.AdditionalMaterials
             var matHash = new HashSet<Material>();
             foreach (var provider in _providers)
             {
-                matHash.UnionWith(provider.GetReferencedMaterials().UOfType<Material>());
+                matHash.UnionWith(provider.GetReferencedMaterials().SkipDestroyed());
             }
             return matHash;
         }

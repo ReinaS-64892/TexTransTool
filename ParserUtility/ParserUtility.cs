@@ -41,6 +41,7 @@ namespace net.rs64.ParserUtility
             _position = 0;
             _length = array.LongLength;
         }
+        public BinarySectionStream(byte[] array, BinaryAddress binaryAddress) : this(array, binaryAddress.StartAddress, binaryAddress.Length) { }
         private BinarySectionStream(byte[] array, long start, long length)
         {
             _array = array;
@@ -58,7 +59,11 @@ namespace net.rs64.ParserUtility
             var subSectionStart = ArrayPosition;
             if (CheckSectionRange(subSectionStart) || CheckSectionRange(subSectionStart + length)) { throw new ArgumentOutOfRangeException(); }
             Position += length;
-            return new BinarySectionStream(_array, subSectionStart, length);
+            return new BinarySectionStream(_array, subSectionStart, length) { BigEndian = BigEndian };
+        }
+        public BinaryAddress ReadToAddress()
+        {
+            return ReadToAddress(Length - Position);
         }
         public BinaryAddress ReadToAddress(long length)
         {
@@ -129,6 +134,47 @@ namespace net.rs64.ParserUtility
             if (BigEndian) { return BitConverter.Int64BitsToDouble(BinaryPrimitives.ReadInt64BigEndian(span)); }
             else { return BitConverter.Int64BitsToDouble(BinaryPrimitives.ReadInt64LittleEndian(span)); }
         }
+        public byte[] ReadToArray()
+        {
+            return ReadToArray(Length - Position);
+        }
+        public byte[] ReadToArray(long length)
+        {
+            var array = new byte[length];
+            ReadToSpan(array);
+            return array;
+        }
+        public string ReadToUTF16BE() { return ReadToUTF16BE(Length - Position); }
+        public string ReadToUTF16BE(long length)
+        {
+            return Encoding.BigEndianUnicode.GetString(ReadToArray(length));
+        }
+        public string ReadToASCII() { return ReadToASCII(Length - Position); }
+        public string ReadToASCII(long length)
+        {
+            return Encoding.ASCII.GetString(ReadToArray(length));
+        }
+        public IDisposable ChangeEndianScope(bool isBigEndian)
+        {
+            return new EndianScope(this, isBigEndian);
+        }
+
+        class EndianScope : IDisposable
+        {
+            private BinarySectionStream stream;
+            private bool prevEndian;
+
+            public EndianScope(BinarySectionStream stream, bool isBigEndian)
+            {
+                this.stream = stream;
+                prevEndian = stream.BigEndian;
+                stream.BigEndian = isBigEndian;
+            }
+            public void Dispose()
+            {
+                stream.BigEndian = prevEndian;
+            }
+        }
     }
     [Serializable]
     public struct BinaryAddress
@@ -188,10 +234,6 @@ namespace net.rs64.ParserUtility
         public static string ParseBigUTF16(this Span<byte> bytes)
         {
             return Encoding.BigEndianUnicode.GetString(bytes);
-        }
-        public static string ReadUnicodeString(Stream stream)
-        {
-            throw new NotImplementedException();
         }
 
         public static void CopyFrom<T>(this Span<T> to, Span<T> from) where T : struct

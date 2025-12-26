@@ -51,7 +51,14 @@ namespace net.rs64.PSDParser.AdditionalLayerInfo
                     var parser = info = Activator.CreateInstance(TypeAndMayLong.Item1) as AdditionalLayerInfoBase;
                     var length = isPSB is false ? stream.ReadUInt32() : TypeAndMayLong.Item2 ? stream.ReadUInt64() : stream.ReadUInt32();
                     parser.Address = stream.PeekToAddress((long)length);
-                    parser.ParseAddLY(isPSB, stream.ReadSubSection(parser.Address.Length));
+                    try
+                    {
+                        parser.ParseAddLY(isPSB, stream.ReadSubSection(parser.Address.Length));
+                    }
+                    catch (Exception e)
+                    {
+                        parser.ParseError = e;
+                    }
                     addLayerInfoList.Add(parser);
                 }
                 else
