@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using nadena.dev.ndmf;
 using nadena.dev.ndmf.preview;
 using net.rs64.TexTransTool.Build;
@@ -13,19 +14,7 @@ namespace net.rs64.TexTransTool.NDMF
     {
         //TODO : 決め打ちじゃなくて、もっと調べて正しい状態にしてもいい気がする。
         public RenderAspects Reads => _nodeDomain.UsedLookAt ? RenderAspects.Everything : 0;
-        public RenderAspects WhatChanged
-        {
-            get
-            {
-                RenderAspects flag = 0;
-
-                if (_nodeDomain.UsedMaterialReplace) flag |= RenderAspects.Material;
-                if (_nodeDomain.UsedSetMesh) flag |= RenderAspects.Mesh | RenderAspects.Texture;
-                if (_nodeDomain.UsedTextureStack) flag |= RenderAspects.Material | RenderAspects.Texture;
-
-                return flag;
-            }
-        }
+        public RenderAspects WhatChanged { get; private set; }
 
         NodeExecuteDomain _nodeDomain;
         internal TexTransPhase TargetPhase;
@@ -51,10 +40,27 @@ namespace net.rs64.TexTransTool.NDMF
             Profiler.BeginSample("MargeStack Or DomainFinish");
             _nodeDomain.DomainFinish();
             Profiler.EndSample();
+
+            RenderAspects flag = 0;
+
+            if (_nodeDomain.UsedMaterialReplace) flag |= RenderAspects.Material;
+            if (_nodeDomain.UsedSetMesh) flag |= RenderAspects.Mesh | RenderAspects.Texture;
+            if (_nodeDomain.UsedTextureStack) flag |= RenderAspects.Material | RenderAspects.Texture;
+
+            WhatChanged = flag;
         }
         public void OnFrame(Renderer original, Renderer proxy)
         {
             _nodeDomain.DomainRecaller(original, proxy);
+        }
+        public Task<IRenderFilterNode> Refresh(IEnumerable<(Renderer, Renderer)> proxyPairs, ComputeContext context, RenderAspects updatedAspects)
+        {
+            if (updatedAspects != 0 && (updatedAspects & Reads) == 0)
+            {
+                WhatChanged = 0;
+                return Task.FromResult<IRenderFilterNode>(this);
+            }
+            return Task.FromResult<IRenderFilterNode>(null);
         }
 
         void IDisposable.Dispose()
