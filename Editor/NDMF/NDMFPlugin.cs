@@ -14,9 +14,7 @@ using net.rs64.TexTransTool.NDMF.AAO;
 namespace net.rs64.TexTransTool.NDMF
 {
 
-#if NDMF_1_8_0_OR_NEWER
     [RunsOnAllPlatforms]
-#endif
     internal class NDMFPlugin : Plugin<NDMFPlugin>
     {
         public override string QualifiedName => "net.rs64.tex-trans-tool";
