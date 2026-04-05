@@ -12,8 +12,7 @@ namespace net.rs64.TexTransTool.NDMF
 {
     internal class TexTransPhaseNode : IRenderFilterNode
     {
-        //TODO : 決め打ちじゃなくて、もっと調べて正しい状態にしてもいい気がする。
-        public RenderAspects Reads => _nodeDomain.UsedLookAt ? RenderAspects.Everything : 0;
+        public RenderAspects Reads => _nodeDomain.Reads;
         public RenderAspects WhatChanged { get; private set; }
 
         NodeExecuteDomain _nodeDomain;

@@ -36,7 +36,7 @@ namespace net.rs64.TexTransTool.NDMF
         public bool UsedTextureStack { get; private set; } = false;
         public bool UsedMaterialReplace { get; private set; } = false;
         public bool UsedSetMesh { get; private set; } = false;
-        public bool UsedLookAt { get; private set; } = false;
+        public RenderAspects Reads { get; private set; } = 0;
 
 
         public NodeExecuteDomain(Dictionary<Renderer, Renderer> o2pDict, ComputeContext computeContext, IObjectRegistry objectRegistry)
@@ -55,7 +55,6 @@ namespace net.rs64.TexTransTool.NDMF
         {
             if (obj is Renderer renderer && _proxy2OriginRendererDict.ContainsKey(renderer)) { return; }
             _ctx?.Observe(obj);
-            UsedLookAt = true;
         }
         public TOut ObserveToGet<TObj, TOut>(TObj obj, Func<TObj, TOut> getAction, Func<TOut, TOut, bool>? comp = null)
                 where TObj : UnityEngine.Object
@@ -85,6 +84,36 @@ namespace net.rs64.TexTransTool.NDMF
             UsedTextureStack = true;
         }
         public IEnumerable<Renderer> EnumerateRenderers() { return _proxyDomainRenderers; }
+        public Material?[] GetMaterials(Renderer renderer)
+        {
+            Reads |= RenderAspects.Material | RenderAspects.Texture;
+            return this.GetMaterialsDefault(renderer);
+        }
+        public Decal.MeshData GetMeshData(Renderer renderer)
+        {
+            Reads |= RenderAspects.Mesh | RenderAspects.Shapes;
+            return this.GetMeshDataDefault(renderer);
+        }
+        public Mesh? GetMesh(Renderer renderer)
+        {
+            Reads |= RenderAspects.Mesh | RenderAspects.Shapes;
+            return this.GetMeshDefault(renderer);
+        }
+        public HashSet<Material> GetAllMaterials()
+        {
+            Reads |= RenderAspects.Material | RenderAspects.Texture;
+            return this.GetAllMaterialsDefault();
+        }
+        public HashSet<Texture> GetAllTextures()
+        {
+            Reads |= RenderAspects.Material | RenderAspects.Texture;
+            return this.GetAllTexturesDefault();
+        }
+        public HashSet<Texture> GetMaterialTextures(Material mat)
+        {
+            Reads |= RenderAspects.Material | RenderAspects.Texture;
+            return this.GetMaterialTexturesDefault(mat);
+        }
 
         private void RegisterRecall(Renderer proxyRenderer, Action<Renderer> recall)
         {
@@ -163,11 +192,12 @@ namespace net.rs64.TexTransTool.NDMF
         }
         public bool IsEnable(Component component)
         {
+            Reads |= RenderAspects.Shapes;
             return component switch
             {
                 Behaviour bh => _ctx.Observe(bh, b => b.enabled),
                 Renderer bh => _ctx.Observe(bh, b => b.enabled),
-                _ => true,
+                _ => this.IsEnableDefault(component),
             };
         }
 
