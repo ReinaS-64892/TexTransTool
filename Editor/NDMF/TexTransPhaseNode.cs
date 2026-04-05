@@ -30,16 +30,14 @@ namespace net.rs64.TexTransTool.NDMF
         NodeExecuteDomain _nodeDomain;
         internal TexTransPhase TargetPhase;
         internal Dictionary<Renderer, Renderer> o2pDict;
-        internal Renderer[] domainRenderers;
-        internal Dictionary<TexTransBehavior, int> behaviorIndex;
-        public void NodeExecuteAndInit(IEnumerable<TexTransBehavior> flattenTTB, ComputeContext ctx)
+        public void NodeExecuteAndInit(IEnumerable<TexTransBehavior> orderedBehaviors, ComputeContext ctx)
         {
             Profiler.BeginSample("NodeExecuteDomain.ctr");
             _nodeDomain = new NodeExecuteDomain(o2pDict, ctx, ObjectRegistry.ActiveRegistry);
             Profiler.EndSample();
 
             Profiler.BeginSample("apply ttb s");
-            foreach (var behavior in flattenTTB.OrderBy(behaviorIndex.GetValueOrDefault))
+            foreach (var behavior in orderedBehaviors)
             {
                 if (behavior == null) { continue; }
                 ctx.Observe(behavior);
