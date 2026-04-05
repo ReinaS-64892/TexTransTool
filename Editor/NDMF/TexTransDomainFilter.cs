@@ -127,7 +127,9 @@ namespace net.rs64.TexTransTool.NDMF
                 Profiler.EndSample();
 
                 Profiler.BeginSample("add to all groups");
-                groups.AddRange(renderersGroup2behavior.Select(i => RenderGroup.For(i.Key).WithData(new PassingData(i.Value.OrderBy(behaviorIndex.GetValueOrDefault).ToImmutableArray()))));
+                groups.AddRange(renderersGroup2behavior
+                    .Select(i => RenderGroup.For(i.Key).WithData(new PassingData(i.Value.OrderBy(behaviorIndex.GetValueOrDefault).ToImmutableArray())))
+                    .OrderBy(g => g.Renderers[0].GetInstanceID()));
                 Profiler.EndSample();
                 Profiler.EndSample();
 
@@ -177,11 +179,11 @@ namespace net.rs64.TexTransTool.NDMF
         {
             var renderer2Behavior = new Dictionary<Renderer, HashSet<TexTransBehavior>>();
 
-            foreach (var targetKV in targetRendererGroup)
+            foreach (var targetKV in targetRendererGroup.OrderBy(i => i.Key.GetInstanceID()))
             {
                 var thisTTGroup = new HashSet<TexTransBehavior>() { { targetKV.Key } };
                 var thisGroupTarget = new HashSet<Renderer>();
-                foreach (var target in targetKV.Value)
+                foreach (var target in targetKV.Value.OrderBy(i => i.GetInstanceID()))
                 {
                     if (renderer2Behavior.ContainsKey(target))
                     {
@@ -196,7 +198,7 @@ namespace net.rs64.TexTransTool.NDMF
             }
 
             var grouping = new Dictionary<IEnumerable<Renderer>, HashSet<TexTransBehavior>>();
-            foreach (var group in renderer2Behavior.Values.Distinct()) { grouping.Add(renderer2Behavior.Where(i => i.Value == group).Select(i => i.Key), group); }
+            foreach (var group in renderer2Behavior.OrderBy(i => i.Key.GetInstanceID()).Select(i => i.Value).Distinct()) { grouping.Add(renderer2Behavior.Where(i => i.Value == group).Select(i => i.Key), group); }
             return grouping;
         }
 
