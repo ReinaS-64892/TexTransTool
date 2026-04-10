@@ -50,6 +50,8 @@ namespace net.rs64.TexTransTool.Editor.OtherMenuItem
         [M(BP + YAxisFixedGradientLayer.MenuPath)] static void YAFGL() => C<YAxisFixedGradientLayer>(true);
         [M(BP + ColorizeLayer.MenuPath)] static void CL() => C<ColorizeLayer>(true);
         [M(BP + PhotoshopGradationMapLayer.MenuPath)] static void PGML() => C<PhotoshopGradationMapLayer>(true);
+        [M(BP + ClipPostScreenLayer.MenuPath)] static void CPS() => C<ClipPostScreenLayer>(true);
+
 
         [M(BP + PhaseDefinition.PDMenuPath)] static void PD() => C<PhaseDefinition>();
 
