@@ -56,6 +56,7 @@ namespace net.rs64.TexTransTool
             }
 
             foreach (var t in targetTextures) { domain.AddTextureStack(t, addTex, blKey); }
+            addTex.Dispose();
         }
 
         internal override IEnumerable<Renderer> ModificationTargetRenderers(IRendererTargeting rendererTargeting)
