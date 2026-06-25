@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using nadena.dev.ndmf;
 using net.rs64.TexTransTool.Build;
 using net.rs64.TexTransTool.Decal;
 using net.rs64.TexTransTool.MultiLayerImage;
@@ -18,7 +19,7 @@ namespace net.rs64.TexTransTool.Preview.RealTime
     {
         RealTimePreviewDomain? _previewDomain = null;
         Dictionary<TexTransBehavior, int> _PriorityMap = new();
-        Dictionary<int, HashSet<TexTransBehavior>> _dependencyMap = new();
+        Dictionary<EntityId, HashSet<TexTransBehavior>> _dependencyMap = new();
         HashSetQueue<TexTransBehavior> _updateQueue = new();
 
 
@@ -70,7 +71,7 @@ namespace net.rs64.TexTransTool.Preview.RealTime
 
             foreach (var ttb in texTransBehaviors) { AddPreviewBehavior(ttb as TexTransBehavior); }
         }
-        void RegisterDependency(TexTransBehavior texTransRuntimeBehavior, int dependInstanceID)
+        void RegisterDependency(TexTransBehavior texTransRuntimeBehavior, EntityId dependInstanceID)
         {
             if (!_dependencyMap.ContainsKey(dependInstanceID)) { _dependencyMap[dependInstanceID] = new(); }
             _dependencyMap[dependInstanceID].Add(texTransRuntimeBehavior);
@@ -103,13 +104,13 @@ namespace net.rs64.TexTransTool.Preview.RealTime
                     case ObjectChangeKind.ChangeGameObjectOrComponentProperties:
                         {
                             stream.GetChangeGameObjectOrComponentPropertiesEvent(i, out var data);
-                            DependEnqueueOfInstanceID(data.instanceId);
+                            DependEnqueueOfInstanceID(data.GetEntityId());
                             break;
                         }
                     case ObjectChangeKind.ChangeAssetObjectProperties:
                         {
                             stream.GetChangeAssetObjectPropertiesEvent(i, out var data);
-                            DependEnqueueOfInstanceID(data.instanceId);
+                            DependEnqueueOfInstanceID(data.GetEntityId());
                             break;
                         }
 
@@ -125,7 +126,7 @@ namespace net.rs64.TexTransTool.Preview.RealTime
                 }
             }
 
-            void DependEnqueueOfInstanceID(int instanceId)
+            void DependEnqueueOfInstanceID(EntityId instanceId)
             {
                 if (_dependencyMap.ContainsKey(instanceId))
                 {

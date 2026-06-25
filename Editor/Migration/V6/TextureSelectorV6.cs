@@ -1,3 +1,4 @@
+#if !UNITY_6000_6_OR_NEWER
 using System;
 using System.Linq;
 using net.rs64.TexTransTool.Decal;
@@ -80,3 +81,4 @@ namespace net.rs64.TexTransTool.Migration.V6
         }
     }
 }
+#endif

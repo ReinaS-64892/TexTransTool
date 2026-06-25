@@ -28,12 +28,17 @@ namespace net.rs64.TexTransTool.Preview.Custom
         [InitializeOnLoadMethod]
         public static void InitProcessor()
         {
-            var processorTypes = AppDomain.CurrentDomain.GetAssemblies()
-             .SelectMany(t => t.GetTypes())
-             .Where(type => type.GetInterfaces().Any(i => i == typeof(ITTTCustomPreview)))
-             .Where(i => !i.IsAbstract)
-             .Where(i => i.GetCustomAttributes<TTTCustomPreviewAttribute>().Any())
-             .SelectMany(type => type.GetCustomAttributes<TTTCustomPreviewAttribute>().Select(customAttribute => (customAttribute, type)));
+            var processorTypes =
+#if UNITY_6000_6_OR_NEWER
+                UnityEngine.Assemblies.CurrentAssemblies.GetLoadedAssemblies()
+#else
+                AppDomain.CurrentDomain.GetAssemblies()
+#endif
+            .SelectMany(t => { try { return t.GetTypes(); } catch { return Array.Empty<Type>(); } })
+            .Where(type => type.GetInterfaces().Any(i => i == typeof(ITTTCustomPreview)))
+            .Where(i => !i.IsAbstract)
+            .Where(i => i.GetCustomAttributes<TTTCustomPreviewAttribute>().Any())
+            .SelectMany(type => type.GetCustomAttributes<TTTCustomPreviewAttribute>().Select(customAttribute => (customAttribute, type)));
 
             var processorDict = new Dictionary<Type, ITTTCustomPreview>();
 

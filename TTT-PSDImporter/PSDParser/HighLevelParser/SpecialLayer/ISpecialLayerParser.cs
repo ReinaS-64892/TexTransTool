@@ -37,14 +37,16 @@ namespace net.rs64.TexTransTool.PSDParser
         {
             var dict = new Dictionary<Type, ISpecialLayerParser>();
 
+#pragma warning disable UAC0005 // AppDomain.GetAssemblies()
             foreach (var addLYType in AppDomain.CurrentDomain.GetAssemblies()
-                 .SelectMany(I => I.GetTypes())
+                 .SelectMany(t => { try { return t.GetTypes(); } catch { return Array.Empty<Type>(); } })
                  .Where(I => I.GetCustomAttributes<SpecialInfoOfAttribute>().Any()))
             {
                 var instants = Activator.CreateInstance(addLYType) as ISpecialLayerParser;
                 foreach (var attr in addLYType.GetCustomAttributes<SpecialInfoOfAttribute>())
                     if (dict.ContainsKey(attr.Type) is false) { dict.Add(attr.Type, instants); }
             }
+#pragma warning restore UAC0005 // AppDomain.GetAssemblies()
 
             return dict;
         }

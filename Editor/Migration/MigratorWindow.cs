@@ -1,3 +1,4 @@
+#if !UNITY_6000_6_OR_NEWER
 using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
@@ -168,3 +169,4 @@ namespace net.rs64.TexTransTool.Migration
     }
 }
 
+#endif

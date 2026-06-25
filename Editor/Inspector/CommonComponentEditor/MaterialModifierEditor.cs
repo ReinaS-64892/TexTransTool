@@ -280,8 +280,8 @@ namespace net.rs64.TexTransTool.Editor
         // Recording Materialの変更もShader含めChangeAssetObjectPropertiesで取得できる
         private void OnObjectChanged(ref ObjectChangeEventStream stream)
         {
-            var componentId = target.GetInstanceID();
-            var recordingMaterialId = _recordingMaterial.GetInstanceID();
+            var componentId = target.GetEntityId();
+            var recordingMaterialId = _recordingMaterial.GetEntityId();
             
             for (int i = 0; i < stream.length; i++)
             {
@@ -290,7 +290,7 @@ namespace net.rs64.TexTransTool.Editor
                 if (eventType == ObjectChangeKind.ChangeGameObjectOrComponentProperties)
                 {
                     stream.GetChangeGameObjectOrComponentPropertiesEvent(i, out var data);
-                    if (data.instanceId == componentId)
+                    if (data.GetEntityId() == componentId)
                     {
                         RebuildRecordingMaterialFromComponent();
                         return;
@@ -299,7 +299,7 @@ namespace net.rs64.TexTransTool.Editor
                 if (eventType == ObjectChangeKind.ChangeAssetObjectProperties)
                 {
                     stream.GetChangeAssetObjectPropertiesEvent(i, out var data);
-                    if (data.instanceId == recordingMaterialId)
+                    if (data.GetEntityId() == recordingMaterialId)
                     {
                         ApplyRecordingMaterialDiffToComponent();
                         // この変更でChangeGameObjectOrComponentProperties経由でRebuildRecordingMaterialFromComponentが次フレームで呼ばれるが無害なので放置

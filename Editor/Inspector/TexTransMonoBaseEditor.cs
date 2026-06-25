@@ -42,12 +42,14 @@ namespace net.rs64.TexTransTool.Editor
         }
         public static void DrawOldSaveDataVersionWarning(TexTransMonoBase ttMonoBase)
         {
+#if !UNITY_6000_6_OR_NEWER
             if (TexTransMonoBase.IsOldSaveData(ttMonoBase)) DrawMigratorWindowButton();
             void DrawMigratorWindowButton()
             {
                 if (GUILayout.Button("Common:button:ThisComponentSaveDataIsOldOpenMigratorWindow".Glc()))
                     TTTMenu.ShowWindow(typeof(Migration.MigratorWindow));
             }
+#endif
         }
     }
 }

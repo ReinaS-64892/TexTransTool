@@ -14,12 +14,12 @@ namespace net.rs64.TexTransTool.Preview.RealTime
         HashSet<Renderer> _domainRenderers = new();
         PreviewStackManager _stackManager;
         Dictionary<Material, Material> _previewMaterialMap = new();
-        Action<TexTransBehavior, int> _lookAtCallBack;
+        Action<TexTransBehavior, EntityId> _lookAtCallBack;
         private UnityDiskUtil _diskUtil;
         private TTCEUnityWithTTT4Unity _ttce4U;
 
 
-        public RealTimePreviewDomain(GameObject domainRoot, Action<TexTransBehavior, int> lookAtCallBack)
+        public RealTimePreviewDomain(GameObject domainRoot, Action<TexTransBehavior, EntityId> lookAtCallBack)
         {
             _domainRoot = domainRoot;
             _lookAtCallBack = lookAtCallBack;
@@ -151,7 +151,7 @@ namespace net.rs64.TexTransTool.Preview.RealTime
         public void Observe(UnityEngine.Object obj)
         {
             if (_texTransRuntimeBehavior is null) { Debug.Assert(_texTransRuntimeBehavior is not null); return; }
-            _lookAtCallBack(_texTransRuntimeBehavior, obj.GetInstanceID());
+            _lookAtCallBack(_texTransRuntimeBehavior, obj.GetEntityId());
         }
 
         public TexTransToolTextureDescriptor GetTextureDescriptor(Texture texture) { throw new NotImplementedException(); }
