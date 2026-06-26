@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using net.rs64.TexTransTool.Utils;
 using UnityEditor;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
@@ -28,12 +29,12 @@ namespace net.rs64.TexTransTool.Preview.Custom
         [InitializeOnLoadMethod]
         public static void InitProcessor()
         {
-            var processorTypes = AppDomain.CurrentDomain.GetAssemblies()
-             .SelectMany(t => t.GetTypes())
-             .Where(type => type.GetInterfaces().Any(i => i == typeof(ITTTCustomPreview)))
-             .Where(i => !i.IsAbstract)
-             .Where(i => i.GetCustomAttributes<TTTCustomPreviewAttribute>().Any())
-             .SelectMany(type => type.GetCustomAttributes<TTTCustomPreviewAttribute>().Select(customAttribute => (customAttribute, type)));
+            var processorTypes = AssemblyCollector.GetAssemblies()
+            .SelectMany(t => t.GetTypes())
+            .Where(type => type.GetInterfaces().Any(i => i == typeof(ITTTCustomPreview)))
+            .Where(i => !i.IsAbstract)
+            .Where(i => i.GetCustomAttributes<TTTCustomPreviewAttribute>().Any())
+            .SelectMany(type => type.GetCustomAttributes<TTTCustomPreviewAttribute>().Select(customAttribute => (customAttribute, type)));
 
             var processorDict = new Dictionary<Type, ITTTCustomPreview>();
 

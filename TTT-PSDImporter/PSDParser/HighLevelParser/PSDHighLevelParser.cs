@@ -29,7 +29,7 @@ namespace net.rs64.TexTransTool.PSDParser
             var ctx = new HighLevelParserContext();
 
             ctx.RootLayers = psd.RootLayers;
-            importMode = DetectPSDSource(lowLevelData);
+            importMode ??= DetectPSDSource(lowLevelData);
             ctx.ImportMode = importMode.Value;
 
             ctx.ImageDataQueue = new Queue<ChannelImageData>(lowLevelData.LayerInfo.ChannelImageData ?? new());

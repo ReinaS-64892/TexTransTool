@@ -33,12 +33,13 @@ namespace net.rs64.TexTransTool.PSDParser
         {
             get { s_specialLayerParser ??= GetAdditionalLayerInfoParsersTypes(); return s_specialLayerParser; }
         }
+        static IEnumerable<Assembly> assemblies = new Assembly[] { typeof(SpecialLayerParserUtil).Assembly };
         static Dictionary<Type, ISpecialLayerParser> GetAdditionalLayerInfoParsersTypes()
         {
             var dict = new Dictionary<Type, ISpecialLayerParser>();
 
-            foreach (var addLYType in AppDomain.CurrentDomain.GetAssemblies()
-                 .SelectMany(I => I.GetTypes())
+            foreach (var addLYType in assemblies
+                 .SelectMany(t => { try { return t.GetTypes(); } catch { return Array.Empty<Type>(); } })
                  .Where(I => I.GetCustomAttributes<SpecialInfoOfAttribute>().Any()))
             {
                 var instants = Activator.CreateInstance(addLYType) as ISpecialLayerParser;

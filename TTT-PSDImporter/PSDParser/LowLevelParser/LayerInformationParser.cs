@@ -1,9 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
 using net.rs64.ParserUtility;
-using Unity.Collections;
 using static net.rs64.PSDParser.ChannelImageDataParser;
 using static net.rs64.PSDParser.LayerRecordParser;
 

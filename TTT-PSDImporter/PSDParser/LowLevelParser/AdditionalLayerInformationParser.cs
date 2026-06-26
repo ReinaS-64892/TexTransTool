@@ -14,12 +14,13 @@ namespace net.rs64.PSDParser.AdditionalLayerInfo
         {
             get { s_additionalLayerInfoParsersTypes ??= GetAdditionalLayerInfoParsersTypes(); return s_additionalLayerInfoParsersTypes; }
         }
+        static IEnumerable<Assembly> assemblies = new Assembly[] { typeof(AdditionalLayerInformationParser).Assembly };
         static Dictionary<string, (Type, bool)> GetAdditionalLayerInfoParsersTypes()
         {
             var dict = new Dictionary<string, (Type, bool)>();
 
-            foreach (var addLYType in AppDomain.CurrentDomain.GetAssemblies()
-                 .SelectMany(I => I.GetTypes())
+            foreach (var addLYType in assemblies
+                 .SelectMany(t => { try { return t.GetTypes(); } catch { return Array.Empty<Type>(); } })
                  .Where(I => I.GetCustomAttribute<AdditionalLayerInfoParserAttribute>() != null))
             {
                 var Instants = Activator.CreateInstance(addLYType) as AdditionalLayerInfoBase;

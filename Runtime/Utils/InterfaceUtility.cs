@@ -36,8 +36,8 @@ namespace net.rs64.TexTransTool.Utils
         /// <returns></returns>
         public static IEnumerable<Type> GetConcreteAssignableTypes<T>()
         {
-            return AppDomain.CurrentDomain.GetAssemblies()
-                .SelectMany(assembly => assembly.GetTypes())
+            return AssemblyCollector.GetAssemblies()
+                .SelectMany(t => t.GetTypes())
                 .Where(type => !type.IsAbstract && typeof(T).IsAssignableFrom(type));
         }
     }

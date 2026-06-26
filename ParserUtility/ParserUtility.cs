@@ -1,12 +1,7 @@
 using System;
 using System.Buffers.Binary;
-using System.Collections;
-using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
 using System.Linq;
 using System.Text;
-using Unity.Collections;
 
 namespace net.rs64.ParserUtility
 {
