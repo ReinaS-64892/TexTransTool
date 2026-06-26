@@ -17,7 +17,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - MultiLayerImageCanvas に一部分だけ上書きなどが可能になる 合成モード が追加されました (#1079)
 - TTT MaterialModifier などのマテリアルを対象として選択する必要のあるコンポーネントにドメイン内のテクスチャを選択しやすくできるセレクターが追加されました (#1080)
 - クリスタの新しいバージョンで出力するときの挙動を再現できる ClipPostScreenLayer が追加されました (#1099)
-- Unity 6.0 ~ 6.6 Beta, 6.7 Alpha で動作が可能になりました (#1104)
 
 ### Changed
 
@@ -28,8 +27,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - TTTImportedLayerMask を新規でレイヤーに割り当てることができない問題を修正しました (#1070)
 - TTT PSD Importer が subtract (除算) のインポートを行えてなかった問題を修正しました (#1078)
 - TTT MaterialModifier の UI の挙動がいくつか修正されました (#1081)
-- アルファ置き換え が全くアルファを置き換えていなかった問題を修正しました (TTC#17)
-- TextureBlender がメモリリークを引き起こす問題を修正しました (#1102)
 
 ## [v1.0.1](https://github.com/ReinaS-64892/TexTransTool/compare/v1.0.0...v1.0.1) - 2025-12-26
 

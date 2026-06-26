@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - TexTransTool が NDMF によるビルドの場合に MA MaterialSwap によって追加されるマテリアルに対して ほぼすべてのコンポーネントが影響を与えられるようになりました (#1037)
 - UVDisassemblyPhase が追加されました (#1047)
 - NDMF Preview にて 同一フェーズ ではなくても、 MaterialModifier などのマテリアル改変系コンポーネントの影響でプレビュー範囲が変わるコンポーネントが正しい範囲で行われるようになりました (#1051)
+- Unity 6.0 ~ 6.6 Beta, 6.7 Alpha で動作が可能になりました (#1104)
 
 ### Changed
 
@@ -21,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - AtlasTexture などのメッシュを編集するコンポーネントの後に Decal系が動作したときに誤ったUVでデカールが貼られてしまう問題を修正 (#1076)
 - AtlasTexture が ポリゴンの存在しない SubMesh を持った Mesh を持つレンダラーが対象になったときに正しくメッシュの置き換えが行われない問題を修正 (#1077)
+- アルファ置き換え が全くアルファを置き換えていなかった問題を修正しました (TTC#17)
+- TextureBlender がメモリリークを引き起こす問題を修正しました (#1102)
 
 ### Dependency
 
