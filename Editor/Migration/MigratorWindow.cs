@@ -1,4 +1,4 @@
-#if !UNITY_6000_6_OR_NEWER
+#if !UNITY_6000_5_OR_NEWER
 using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;

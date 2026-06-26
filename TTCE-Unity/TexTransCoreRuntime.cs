@@ -43,7 +43,7 @@ namespace net.rs64.TexTransCoreEngineForUnity
 
         internal static IEnumerable<Assembly> TexTransToolAssembly()
         {
-            return AppDomain.CurrentDomain.GetAssemblies().Where(i => i.FullName.Contains("net.rs64"));
+            return AssemblyCollector.GetAssemblies().Where(i => i.FullName.Contains("net.rs64"));
         }
     }
 

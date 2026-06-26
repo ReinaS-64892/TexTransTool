@@ -122,7 +122,7 @@ namespace MackySoft.SerializeReferenceExtensions.Editor
 
 		static AdvancedDropdownItem GetItem(AdvancedDropdownItem parent, string name)
 		{
-#if UNITY_6000_6_OR_NEWER
+#if UNITY_6000_5_OR_NEWER
 			foreach (AdvancedDropdownItem item in parent.childList)
 #else
 			foreach (AdvancedDropdownItem item in parent.children)

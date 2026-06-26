@@ -42,7 +42,7 @@ namespace net.rs64.TexTransTool.Editor
         }
         public static void DrawOldSaveDataVersionWarning(TexTransMonoBase ttMonoBase)
         {
-#if !UNITY_6000_6_OR_NEWER
+#if !UNITY_6000_5_OR_NEWER
             if (TexTransMonoBase.IsOldSaveData(ttMonoBase)) DrawMigratorWindowButton();
             void DrawMigratorWindowButton()
             {

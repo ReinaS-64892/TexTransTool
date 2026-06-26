@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using net.rs64.TexTransTool.Utils;
 using UnityEditor;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
@@ -28,13 +29,8 @@ namespace net.rs64.TexTransTool.Preview.Custom
         [InitializeOnLoadMethod]
         public static void InitProcessor()
         {
-            var processorTypes =
-#if UNITY_6000_6_OR_NEWER
-                UnityEngine.Assemblies.CurrentAssemblies.GetLoadedAssemblies()
-#else
-                AppDomain.CurrentDomain.GetAssemblies()
-#endif
-            .SelectMany(t => { try { return t.GetTypes(); } catch { return Array.Empty<Type>(); } })
+            var processorTypes = AssemblyCollector.GetAssemblies()
+            .SelectMany(t => t.GetTypes())
             .Where(type => type.GetInterfaces().Any(i => i == typeof(ITTTCustomPreview)))
             .Where(i => !i.IsAbstract)
             .Where(i => i.GetCustomAttributes<TTTCustomPreviewAttribute>().Any())

@@ -14,12 +14,12 @@ namespace net.rs64.PSDParser.AdditionalLayerInfo
         {
             get { s_additionalLayerInfoParsersTypes ??= GetAdditionalLayerInfoParsersTypes(); return s_additionalLayerInfoParsersTypes; }
         }
+        static IEnumerable<Assembly> assemblies = new Assembly[] { typeof(AdditionalLayerInformationParser).Assembly };
         static Dictionary<string, (Type, bool)> GetAdditionalLayerInfoParsersTypes()
         {
             var dict = new Dictionary<string, (Type, bool)>();
 
-#pragma warning disable UAC0005 // AppDomain.GetAssemblies()
-            foreach (var addLYType in AppDomain.CurrentDomain.GetAssemblies()
+            foreach (var addLYType in assemblies
                  .SelectMany(t => { try { return t.GetTypes(); } catch { return Array.Empty<Type>(); } })
                  .Where(I => I.GetCustomAttribute<AdditionalLayerInfoParserAttribute>() != null))
             {
@@ -31,7 +31,6 @@ namespace net.rs64.PSDParser.AdditionalLayerInfo
                     dict.Add(customAttribute.Code, (addLYType, customAttribute.MayULongLength));
                 }
             }
-#pragma warning restore UAC0005 // AppDomain.GetAssemblies()
 
             return dict;
         }
