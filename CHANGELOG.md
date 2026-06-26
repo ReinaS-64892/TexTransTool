@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v1.0.1...HEAD)
 
+### Fixed
+
+- Cherry-Pick TextureBlender がメモリリークを引き起こす問題を修正しました (#1102)
+
 ## [v1.0.1](https://github.com/ReinaS-64892/TexTransTool/compare/v1.0.0...v1.0.1) - 2025-12-26
 
 ### Fixed
