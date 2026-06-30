@@ -104,7 +104,7 @@ namespace net.rs64.TexTransTool.NDMF
                 _nodeDomain = nodeDomain;
             }
 
-            public RenderAspects Reads => _nodeDomain.UsedLookAt ? RenderAspects.Everything : 0;
+            public RenderAspects Reads => _nodeDomain.Reads;
             public RenderAspects WhatChanged
             {
                 get

@@ -64,31 +64,23 @@ namespace net.rs64.TexTransTool
         IEnumerable<Renderer> EnumerateRenderers();
         Material?[] GetMaterials(Renderer renderer)
         {
-            return ObserveToGet(renderer, GetSharedMaterials, (l, r) => l.SequenceEqual(r));
-            Material?[] GetSharedMaterials(Renderer r) { return renderer.sharedMaterials; }
+            return this.GetMaterialsDefault(renderer);
         }
-        MeshData GetMeshData(Renderer renderer) { return renderer.GetToMemorizedMeshData(); }
-        Mesh? GetMesh(Renderer renderer) { return renderer.GetMesh(); }
+        MeshData GetMeshData(Renderer renderer) { return this.GetMeshDataDefault(renderer); }
+        Mesh? GetMesh(Renderer renderer) { return this.GetMeshDefault(renderer); }
 
         // ここで得られる Material は Renderer に存在するもの以外も入りうる
         HashSet<Material> GetAllMaterials()
         {
-            var matHash = new HashSet<Material>();
-            foreach (var r in EnumerateRenderers()) { matHash.UnionWith(GetMaterials(r).SkipDestroyed()); }
-            return matHash;
+            return this.GetAllMaterialsDefault();
         }
         HashSet<Texture> GetAllTextures()
         {
-            var texHash = new HashSet<Texture>();
-            var mats = GetAllMaterials();
-            foreach (var m in mats) { texHash.UnionWith(m.EnumerateTextures(GetShader, GetTex)); }
-            return texHash;
-            Shader GetShader(Material mat) { return ObserveToGet(mat, i => i.shader); }
-            Texture GetTex(Material mat, int nameID) { return ObserveToGet(mat, i => i.GetTexture(nameID)); }
+            return this.GetAllTexturesDefault();
         }
         HashSet<Texture> GetMaterialTextures(Material mat)
         {
-            return mat.EnumerateReferencedTextures().ToHashSet();
+            return this.GetMaterialTexturesDefault(mat);
         }
     }
     internal interface IUnityObjectObserver
@@ -114,12 +106,7 @@ namespace net.rs64.TexTransTool
         }
         bool IsEnable(Component component)
         {
-            return component switch
-            {
-                Behaviour bh => bh.enabled,
-                Renderer bh => bh.enabled,
-                _ => true,
-            };
+            return this.IsEnableDefault(component);
         }
     }
     internal interface ITextureDescriptionRegistry
@@ -224,6 +211,47 @@ namespace net.rs64.TexTransTool
     }
     internal static class DomainUtility
     {
+        public static Material?[] GetMaterialsDefault(this IDomainReferenceViewer rendererTargeting, Renderer renderer)
+        {
+            return rendererTargeting.ObserveToGet(renderer, GetSharedMaterials, (l, r) => l.SequenceEqual(r));
+            Material?[] GetSharedMaterials(Renderer r) { return renderer.sharedMaterials; }
+        }
+        public static MeshData GetMeshDataDefault(this IDomainReferenceViewer rendererTargeting, Renderer renderer)
+        {
+            return renderer.GetToMemorizedMeshData();
+        }
+        public static Mesh? GetMeshDefault(this IDomainReferenceViewer rendererTargeting, Renderer renderer)
+        {
+            return renderer.GetMesh();
+        }
+        public static HashSet<Material> GetAllMaterialsDefault(this IDomainReferenceViewer rendererTargeting)
+        {
+            var matHash = new HashSet<Material>();
+            foreach (var r in rendererTargeting.EnumerateRenderers()) { matHash.UnionWith(rendererTargeting.GetMaterials(r).SkipDestroyed()); }
+            return matHash;
+        }
+        public static HashSet<Texture> GetAllTexturesDefault(this IDomainReferenceViewer rendererTargeting)
+        {
+            var texHash = new HashSet<Texture>();
+            var mats = rendererTargeting.GetAllMaterials();
+            foreach (var m in mats) { texHash.UnionWith(m.EnumerateTextures(GetShader, GetTex)); }
+            return texHash;
+            Shader GetShader(Material mat) { return rendererTargeting.ObserveToGet(mat, i => i.shader); }
+            Texture GetTex(Material mat, int nameID) { return rendererTargeting.ObserveToGet(mat, i => i.GetTexture(nameID)); }
+        }
+        public static HashSet<Texture> GetMaterialTexturesDefault(this IDomainReferenceViewer rendererTargeting, Material mat)
+        {
+            return mat.EnumerateReferencedTextures().ToHashSet();
+        }
+        public static bool IsEnableDefault(this IActivenessViewer activenessViewer, Component component)
+        {
+            return component switch
+            {
+                Behaviour bh => bh.enabled,
+                Renderer bh => bh.enabled,
+                _ => true,
+            };
+        }
         public static UnityObjectEqualityComparison ObjectEqual = (l, r) =>
         {
             if (l == null) { return r == null; }
