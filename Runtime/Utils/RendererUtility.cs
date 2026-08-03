@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Profiling;
 using UnityEngine;
 using UnityEngine.Pool;
 
@@ -7,6 +9,11 @@ namespace net.rs64.TexTransTool.Utils
 {
     internal static class RendererUtility
     {
+        private static readonly ProfilerMarker SwapMaterialsMarker = new("RendererUtility.SwapMaterials");
+        private static readonly ProfilerMarker GetSharedMaterialsMarker = new("RendererUtility.SwapMaterials.GetSharedMaterials");
+        private static readonly ProfilerMarker MapMaterialsMarker = new("RendererUtility.SwapMaterials.MapMaterials");
+        private static readonly ProfilerMarker AssignSharedMaterialsMarker = new("RendererUtility.SwapMaterials.AssignSharedMaterials");
+
         /// <summary>
         /// マテリアルをとりあえず集めてくる。同一物を消したりなどしない。
         /// </summary>
@@ -33,11 +40,36 @@ namespace net.rs64.TexTransTool.Utils
             return output;
         }
         public static void SwapMaterials(IEnumerable<Renderer> renderers, Dictionary<Material, Material> matMap) { foreach (var r in renderers) { SwapMaterials(r, matMap); } }
-        public static void SwapMaterials(Renderer renderer, Dictionary<Material, Material> matMap)
+        public static Material[] SwapMaterials(Renderer renderer, Dictionary<Material, Material> matMap)
         {
-            if (renderer == null) { return; }
-            if (!renderer.sharedMaterials.Any()) { return; }
-            renderer.sharedMaterials = renderer.sharedMaterials.Select(i => i != null ? matMap.TryGetValue(i, out var r) ? r : i : i).ToArray();
+            if (renderer == null) { return Array.Empty<Material>(); }
+
+            using (SwapMaterialsMarker.Auto())
+            {
+                Material[] sourceMaterials;
+                using (GetSharedMaterialsMarker.Auto())
+                {
+                    sourceMaterials = renderer.sharedMaterials;
+                }
+
+                if (!sourceMaterials.Any())
+                {
+                    return sourceMaterials;
+                }
+
+                Material[] swappedMaterials;
+                using (MapMaterialsMarker.Auto())
+                {
+                    swappedMaterials = sourceMaterials
+                        .Select(i => i != null ? matMap.TryGetValue(i, out var r) ? r : i : i).ToArray();
+                }
+
+                using (AssignSharedMaterialsMarker.Auto())
+                {
+                    renderer.sharedMaterials = swappedMaterials;
+                    return swappedMaterials;
+                }
+            }
         }
         public static Mesh GetMesh(this Renderer target)
         {

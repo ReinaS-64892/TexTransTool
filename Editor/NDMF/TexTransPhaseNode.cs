@@ -4,6 +4,7 @@ using System.Linq;
 using nadena.dev.ndmf;
 using nadena.dev.ndmf.preview;
 using net.rs64.TexTransTool.Build;
+using Unity.Profiling;
 using UnityEngine;
 using UnityEngine.Profiling;
 
@@ -11,6 +12,8 @@ namespace net.rs64.TexTransTool.NDMF
 {
     internal class TexTransPhaseNode : IRenderFilterNode
     {
+        private static readonly ProfilerMarker OnFrameMarker = new("TexTransPhaseNode.OnFrame");
+
         //TODO : 決め打ちじゃなくて、もっと調べて正しい状態にしてもいい気がする。
         public RenderAspects Reads => _nodeDomain.UsedLookAt ? RenderAspects.Everything : 0;
         public RenderAspects WhatChanged
@@ -56,7 +59,10 @@ namespace net.rs64.TexTransTool.NDMF
         }
         public void OnFrame(Renderer original, Renderer proxy)
         {
-            _nodeDomain.DomainRecaller(original, proxy);
+            using (OnFrameMarker.Auto())
+            {
+                _nodeDomain.DomainRecaller(original, proxy);
+            }
         }
 
         void IDisposable.Dispose()
