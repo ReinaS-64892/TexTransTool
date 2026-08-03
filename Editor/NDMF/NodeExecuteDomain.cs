@@ -8,6 +8,7 @@ using nadena.dev.ndmf.preview;
 using net.rs64.TexTransCore;
 using net.rs64.TexTransCoreEngineForUnity;
 using net.rs64.TexTransTool.Utils;
+using Unity.Profiling;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
@@ -17,6 +18,11 @@ namespace net.rs64.TexTransTool.NDMF
 {
     internal class NodeExecuteDomain : IDomain, IDisposable
     {
+        private static readonly ProfilerMarker DomainRecallerMarker = new("NodeExecuteDomain.DomainRecaller");
+        private static readonly ProfilerMarker DomainRecallerLookupMarker = new("NodeExecuteDomain.DomainRecaller.Lookup");
+        private static readonly ProfilerMarker DomainRecallerSetMeshMarker = new("NodeExecuteDomain.DomainRecaller.SetMesh");
+        private static readonly ProfilerMarker DomainRecallerSetMaterialsMarker = new("NodeExecuteDomain.DomainRecaller.SetMaterials");
+
         HashSet<UnityEngine.Object> _transferredObject = new();
         HashSet<ITTRenderTexture> _transferredRenderTextures = new();
         // HashSet<RenderTexture> _neededReleaseTempRt = new();
@@ -29,7 +35,8 @@ namespace net.rs64.TexTransTool.NDMF
         List<Renderer> _proxyDomainRenderers;
         Dictionary<Renderer, Renderer> _proxy2OriginRendererDict;
 
-        Dictionary<Renderer, Action<Renderer>> _rendererApplyRecaller = new();//origin 2 apply call
+        Dictionary<Renderer, Mesh> _lastMeshes = new();
+        Dictionary<Renderer, Material[]> _lastMaterials = new();
         private IObjectRegistry _objectRegistry;
         private TTCEUnityWithTTT4UnityOnNDMFPreview _ttce4U;
 
@@ -86,12 +93,21 @@ namespace net.rs64.TexTransTool.NDMF
         }
         public IEnumerable<Renderer> EnumerateRenderers() { return _proxyDomainRenderers; }
 
-        private void RegisterRecall(Renderer proxyRenderer, Action<Renderer> recall)
+        private Renderer GetOriginalRenderer(Renderer proxyRenderer)
         {
-            if (!_proxy2OriginRendererDict.ContainsKey(proxyRenderer)) { throw new InvalidOperationException($" {proxyRenderer.name} はプロキシーリストにないよ...?"); }
+            if (!_proxy2OriginRendererDict.TryGetValue(proxyRenderer, out var originalRenderer))
+                throw new InvalidOperationException($" {proxyRenderer.name} はプロキシーリストにないよ...?");
+            return originalRenderer;
+        }
 
-            if (_rendererApplyRecaller.ContainsKey(_proxy2OriginRendererDict[proxyRenderer])) { _rendererApplyRecaller[_proxy2OriginRendererDict[proxyRenderer]] += recall; }
-            else { _rendererApplyRecaller[_proxy2OriginRendererDict[proxyRenderer]] = recall; }
+        private void SetRecallMesh(Renderer proxyRenderer, Mesh mesh)
+        {
+            _lastMeshes[GetOriginalRenderer(proxyRenderer)] = mesh;
+        }
+
+        private void SetRecallMaterials(Renderer proxyRenderer, Material[] materials)
+        {
+            _lastMaterials[GetOriginalRenderer(proxyRenderer)] = materials;
         }
         public bool IsTemporaryAsset(UnityEngine.Object obj) { return _transferredObject.Contains(obj); }
         public void GetMutable(ref Material material)
@@ -112,21 +128,21 @@ namespace net.rs64.TexTransTool.NDMF
         {
             foreach (var dr in _proxyDomainRenderers)
             {
-                RegisterRecall(dr, i => RendererUtility.SwapMaterials(i, mapping));
-                RendererUtility.SwapMaterials(dr, mapping);
+                var materials = RendererUtility.SwapMaterials(dr, mapping);
+                SetRecallMaterials(dr, materials);
             }
             UsedMaterialReplace = true;
         }
 
         public void SetMesh(Renderer renderer, Mesh mesh)
         {
-            RegisterRecall(renderer, i => i.SetMesh(mesh));
+            SetRecallMesh(renderer, mesh);
             renderer.SetMesh(mesh);
             UsedSetMesh = true;
         }
         public void SetMaterials(Renderer renderer, Material[] materials)
         {
-            RegisterRecall(renderer, i => i.sharedMaterials = materials);
+            SetRecallMaterials(renderer, materials);
             renderer.sharedMaterials = materials;
             UsedMaterialReplace = true;
         }
@@ -214,16 +230,44 @@ namespace net.rs64.TexTransTool.NDMF
 
         internal void DomainRecaller(Renderer original, Renderer proxy)
         {
-            if (_rendererApplyRecaller.Any() is false) { return; }
-            if (!_rendererApplyRecaller.ContainsKey(original))
+            using (DomainRecallerMarker.Auto())
             {
-#if TTT_DISPLAY_RUNTIME_LOG
-                Debug.Log($"{original.name} is can not Recall");
-#endif
-                return;
-            }
+                if (_lastMeshes.Count == 0 && _lastMaterials.Count == 0) { return; }
 
-            _rendererApplyRecaller[original].Invoke(proxy);
+                bool hasMesh;
+                bool hasMaterials;
+                Mesh mesh;
+                Material[] materials;
+                using (DomainRecallerLookupMarker.Auto())
+                {
+                    hasMesh = _lastMeshes.TryGetValue(original, out mesh);
+                    hasMaterials = _lastMaterials.TryGetValue(original, out materials);
+                }
+
+                if (!hasMesh && !hasMaterials)
+                {
+#if TTT_DISPLAY_RUNTIME_LOG
+                    Debug.Log($"{original.name} is can not Recall");
+#endif
+                    return;
+                }
+
+                if (hasMesh)
+                {
+                    using (DomainRecallerSetMeshMarker.Auto())
+                    {
+                        proxy.SetMesh(mesh);
+                    }
+                }
+
+                if (hasMaterials)
+                {
+                    using (DomainRecallerSetMaterialsMarker.Auto())
+                    {
+                        proxy.sharedMaterials = materials;
+                    }
+                }
+            }
         }
         public ITexTransToolForUnity GetTexTransCoreEngineForUnity() => _ttce4U;
 
