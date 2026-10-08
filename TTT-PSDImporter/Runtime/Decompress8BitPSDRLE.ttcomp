@@ -18,7 +18,7 @@ cbuffer gv
     uint2 WriteOffset;
 }
 
-StructuredBuffer<uint2> SpanBuffer; // Offset&Count
+StructuredBuffer<uint> SpanBuffer;  // Offset&Count
 StructuredBuffer<uint> RLEBuffer;   // RLEBuf
 RWTexture2D<float4> Tex;
 
@@ -68,8 +68,8 @@ void WriteTex(uint y, uint x, uint byte)
         return;
     }
 
-    uint Offset = SpanBuffer[id.y].x;
-    uint Count = SpanBuffer[id.y].y;
+    uint Offset = SpanBuffer[id.y * 2];
+    uint Count = SpanBuffer[id.y * 2 + 1];
 
     uint readPos = 0;
     uint writePos = 0;

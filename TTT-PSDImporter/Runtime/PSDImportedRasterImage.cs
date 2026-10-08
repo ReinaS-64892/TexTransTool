@@ -103,7 +103,7 @@ namespace net.rs64.TexTransTool.PSDImporter
             (gvBuf[2], gvBuf[3]) = size;
             (gvBuf[4], gvBuf[5]) = pivot;
 
-            Span<uint> spanBuf = heightDataLen > 1024 ? stackalloc uint[heightDataLen] : new uint[heightDataLen];
+            Span<uint> spanBuf = heightDataLen <= 1024 ? stackalloc uint[heightDataLen] : new uint[heightDataLen];
 
             uint offset = 0;
             for (var y = 0; size.y > y; y += 1)
