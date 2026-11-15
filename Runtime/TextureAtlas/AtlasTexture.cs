@@ -175,7 +175,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
             pf.Split("check hight");
             //上側を削れるかを見る
             var height = IslandRelocationManager.CalculateIslandsMaxHeight(movedVirtualIslandArray) + atlasSetting.IslandPadding;
-            var atlasTextureHeightSize = Mathf.Max(GetNormalizedMinHeightSize(atlasTargeSize.y, height), 4);//4以下はちょっと怪しい挙動しそうだからクランプ
+            // height は幅を 1 とした値なので、高さを 1 とした値に直してから判定する
+            var atlasTextureHeightSize = Mathf.Max(GetNormalizedMinHeightSize(atlasTargeSize.y, height * atlasTargeSize.x / atlasTargeSize.y), 4);//4以下はちょっと怪しい挙動しそうだからクランプ
             Debug.Assert(Mathf.IsPowerOfTwo(atlasTextureHeightSize));
 
             TTLog.Info("AtlasTexture:info:RelocateResult", 1 - height, relocateResult.PriorityDownScale, relocateResult.OverallDownScale, relocateResult.TotalRelocateCount, relocationTime);
